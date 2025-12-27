@@ -8,8 +8,8 @@ A multiplayer location guessing game where players compete to identify NYC MTA t
 
 1. **Create or Join a Lobby**: Start a new game or join an existing one with a lobby code
 2. **Compete in 5 Rounds**: Each round presents a random NYC MTA station
-3. **Make Your Guess**: Click on the map where you think the station is located (15 seconds per round)
-4. **Score Points**: Closest guess wins the round - distance determines your score
+3. **Make Your Guess**: Click on the map where you think the station is located (30 seconds per round)
+4. **Score Points**: Closest guess wins the round - distance determines your score (up to 5000 points per round)
 5. **Win the Game**: Player with the highest total score after 5 rounds wins!
 
 ## Features
@@ -19,17 +19,20 @@ A multiplayer location guessing game where players compete to identify NYC MTA t
 - **Live Updates**: See other players' guesses and scores in real-time
 - **Lobby System**: Create private lobbies or join existing games
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Timer-based Rounds**: Fast-paced 15-second rounds keep the game exciting
+- **Timer-based Rounds**: Fast-paced 30-second rounds with 5-second countdowns keep the game exciting
 - **Distance-based Scoring**: Accuracy matters - get as close as possible!
 
 ## Tech Stack
 
 - **Frontend**: Vite + React + TypeScript
-- **Backend**: Supabase (Database + Realtime subscriptions)
-- **Database**: PostgreSQL (via Supabase)
-- **Maps**: MapLibre GL JS
-- **Styling**: CSS3 with modern responsive design
-- **Realtime**: Supabase realtime subscriptions
+  - **UI Libraries**: Tailwind CSS, Material-UI (MUI)
+  - **State Management**: Zustand
+  - **Maps**: MapLibre GL JS + react-map-gl
+  - **Routing**: React Router DOM
+  - **Notifications**: React Toastify
+- **Backend**: Node.js + Express + TypeScript
+  - **Realtime**: Socket.io
+  - **Storage**: In-memory (no database required)
 
 ## Getting Started
 
@@ -37,61 +40,107 @@ A multiplayer location guessing game where players compete to identify NYC MTA t
 
 - Node.js (v16 or higher)
 - npm or yarn
-- Supabase account
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
    git clone <LINK-TO-REPO>
-   cd nyc-guesser
+   cd NYC-GeoGuesser
    ```
 
-2. **Install dependencies**
+2. **Install client dependencies**
    ```bash
+   cd client
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Install server dependencies**
    ```bash
-   cp .env.local.example .env.local
+   cd ../server
+   npm install
    ```
-   Fill in your credentials in the `.env` file
 
-4. **Start the development server**
+4. **Set up environment variables**
+
+   **Client** (optional - defaults work for local development):
+   - Create `client/.env.local` if needed:
+     ```bash
+     VITE_SOCKET_URL=http://localhost:8080
+     ```
+   - You will need to create an API key with <a href="https://www.maptiler.com/">MapTiler</a> for the map to work properly
+     ```bash
+     VITE_MAPTILER_API_KEY=YOUR_MAPTILER_KEY
+     ```
+
+   **Server** (optional - defaults work for local development):
+   - Create `server/.env` if needed:
+     ```bash
+     PORT=8080
+     CORS_ORIGIN=http://localhost:5173
+     NODE_ENV=development
+     ```
+
+5. **Start the development servers**
+
+   **Terminal 1 - Start the server:**
    ```bash
+   cd server
    npm run dev
    ```
+   Server will run on `http://localhost:8080`
 
-5. **Open your browser**
+   **Terminal 2 - Start the client:**
+   ```bash
+   cd client
+   npm run dev
+   ```
+   Client will run on `http://localhost:5173`
+
+6. **Open your browser**
    Navigate to `http://localhost:5173` to start playing!
 
-## Database Setup
+## Game Configuration
 
-The game requires several database tables. See the development guide for the complete schema:
+- **Rounds**: 5 rounds per game
+- **Round Duration**: 30 seconds per round
+- **Countdown**: 5 seconds before each round starts
+- **Players**: 2-4 players per lobby
+- **Scoring**: Distance-based scoring (0-5000 points per round)
+- **Stations**: NYC MTA stations loaded from JSON data file
 
-- `lobbies` - Game lobbies and settings
-- `players` - Player information and scores  
-- `game_sessions` - Active game state
-- `rounds` - Individual round data
-- `player_guesses` - Player guess submissions
-- `mta_stations` - NYC MTA station coordinates
+**Note**: The game uses in-memory storage - no database setup required! All game state is managed in-memory on the server.
 
-## Game Architecture
+## Project Structure
 
 ```
-src/
-├── components/          # React UI components
-│   ├── ui/             # Reusable UI components
-│   ├── features/       # Game-specific components
-│   └── layout/         # Layout components
-├── hooks/              # Custom React hooks
-├── stores/             # State management
-├── utils/              # Utility functions
-├── services/           # Supabase API services
-├── assets/             # Static assets
-├── types/              # TypeScript definitions
-└── constants/          # App constants
+NYC-GeoGuesser/
+├── client/                    # Frontend application
+│   ├── src/
+│   │   ├── components/        # React UI components
+│   │   │   ├── ui/           # Reusable UI components
+│   │   │   ├── features/     # Game-specific components
+│   │   │   └── layout/       # Layout components (Router)
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── stores/           # Zustand state management
+│   │   ├── services/         # Socket.io client services
+│   │   ├── utils/            # Utility functions
+│   │   ├── types/            # TypeScript definitions
+│   │   └── constants/        # App constants
+│   └── package.json
+│
+└── server/                    # Backend application
+    ├── src/
+    │   ├── managers/         # Game state managers
+    │   │   ├── lobby-manager.ts
+    │   │   ├── game-manager.ts
+    │   │   └── player-manager.ts
+    │   ├── socket/           # Socket.io handlers
+    │   ├── utils/            # Utility functions
+    │   ├── types/            # TypeScript definitions
+    │   ├── config/           # Configuration
+    │   └── data/             # MTA station data (JSON)
+    └── package.json
 ```
 
 ## Map Features
@@ -104,11 +153,12 @@ src/
 
 ## Real-time Features
 
-- **Live Player Updates**: See when players join/leave lobbies
-- **Synchronized Timers**: All players see the same countdown
-- **Instant Guess Display**: Watch other players' guesses appear in real-time
+- **Live Player Updates**: See when players join/leave lobbies via Socket.io
+- **Synchronized Timers**: All players see the same countdown and round timers
+- **Instant Guess Display**: Watch other players' guesses appear in real-time on the map
 - **Score Updates**: Live scoreboard updates after each round
-- **Connection Handling**: Graceful reconnection for network issues
+- **Connection Handling**: Graceful reconnection with exponential backoff for network issues
+- **Host Migration**: Automatic host migration if the current host disconnects
 
 ## Contributing
 
@@ -122,7 +172,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## License
 
-This project is licensed under the GNU GENERAL PUBLIC License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
