@@ -1,4 +1,3 @@
-import React from 'react';
 import { Router } from './components/layout/Router';
 import { ToastContainer } from 'react-toastify';
 import 'maplibre-gl/dist/maplibre-gl.css';
