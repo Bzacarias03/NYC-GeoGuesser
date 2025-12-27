@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="160" height="160"><svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="80" cy="80" r="80" fill="#377DFF"></circle>
+<g clip-path="url(#clip0_3_8)">
+<path d="M80 32.5C61.6175 32.5 46.75 47.3675 46.75 65.75C46.75 90.6875 80 127.5 80 127.5C80 127.5 113.25 90.6875 113.25 65.75C113.25 47.3675 98.3825 32.5 80 32.5ZM80 77.625C73.445 77.625 68.125 72.305 68.125 65.75C68.125 59.195 73.445 53.875 80 53.875C86.555 53.875 91.875 59.195 91.875 65.75C91.875 72.305 86.555 77.625 80 77.625Z" fill="white"></path>
+</g>
+<defs>
+<clipPath id="SvgjsClipPath1002">
+<rect width="114" height="114" fill="white" transform="translate(23 23)"></rect>
+</clipPath>
+</defs>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>

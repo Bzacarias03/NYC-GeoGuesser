@@ -1,0 +1,14 @@
+# robots.txt for NYC GeoGuesser
+# This file helps prevent web crawlers and bots from accessing the application
+# to reduce unnecessary traffic and support rate limiting on bot lobbies
+
+User-agent: *
+Disallow: /
+
+# Allow access to static assets if needed (optional - can be removed if you want to block everything)
+# Allow: /favicon.ico
+# Allow: /assets/
+
+# Crawl-delay to slow down any bots that might still access the site
+Crawl-delay: 10
+
