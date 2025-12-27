@@ -28,7 +28,6 @@ dist-ssr
 .cursor/
 .history/
 server/scripts/
-nyc_subway_guesser_spec.md
 
 # Environment variables
 .env
