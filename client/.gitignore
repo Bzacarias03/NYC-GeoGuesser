@@ -23,13 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
-# Miscellaneous
-.DS_Store
-.cursor/
-.history/
-server/scripts/
-nyc_subway_guesser_spec.md
-
 # Environment variables
 .env
 .env.local
+
+# Miscellaneous
+.cursor/
+.history/
+database/
+nyc_mta_game_development_guide.md

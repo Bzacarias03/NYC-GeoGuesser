@@ -1,0 +1,76 @@
+[ CLIENT CONSOLE ]
+
+🎮 Countdown started - navigating to game page LobbyPage.tsx:145:15
+Game start initiated lobbyStore.ts:349:15
+Cleaning up real-time subscription LobbyPage.tsx:134:15
+Cleaning up game start subscription LobbyPage.tsx:160:15
+🎮 Setting up game event subscriptions for lobby: a3ca4d03-535d-4a5b-bb4d-591f8dfe5eb9 useGameLogic.ts:260:13
+🎮 Cleaning up game event subscriptions useGameLogic.ts:272:15
+🎮 Setting up game event subscriptions for lobby: a3ca4d03-535d-4a5b-bb4d-591f8dfe5eb9 useGameLogic.ts:260:13
+WebGL warning: texImage: Alpha-premult and y-flip are deprecated for non-DOM-Element uploads. 9
+🎮 Countdown started: 
+Object { station: {…}, countdown: 4 }
+useGameLogic.ts:78:13
+🎮 Countdown started: 
+Object { station: {…}, countdown: 3 }
+useGameLogic.ts:78:13
+🎮 Countdown started: 
+Object { station: {…}, countdown: 2 }
+useGameLogic.ts:78:13
+🎮 Countdown started: 
+Object { station: {…}, countdown: 1 }
+useGameLogic.ts:78:13
+🎮 Round started: 
+Object { station: {…}, timer: 30 }
+useGameLogic.ts:125:13
+WebGL warning: texImage: Alpha-premult and y-flip are deprecated for non-DOM-Element uploads. 3
+WebGL warning: texImage: Alpha-premult and y-flip are deprecated for non-DOM-Element uploads. 6
+WebGL warning: texImage: Alpha-premult and y-flip are deprecated for non-DOM-Element uploads. 4 
+
+[ SERVER CONSOLE ]
+
+ Guess submitted by ExtraSoda in lobby 4X797X (40.83526409966689, -73.91951769524232)
+❌ Error submitting guess: Error: Player has already submitted a guess for this round
+    at GameManager.submitGuess (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/managers/game-manager.ts:177:13)
+    at Socket.<anonymous> (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/socket/handlers/game-handlers.ts:138:40)
+    at Socket.emit (node:events:507:28)
+    at Socket.emitUntyped (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/typed-events.js:69:22)
+    at /Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/socket.js:697:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+❌ Error submitting guess: Error: Player has already submitted a guess for this round
+    at GameManager.submitGuess (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/managers/game-manager.ts:177:13)
+    at Socket.<anonymous> (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/socket/handlers/game-handlers.ts:138:40)
+    at Socket.emit (node:events:507:28)
+    at Socket.emitUntyped (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/typed-events.js:69:22)
+    at /Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/socket.js:697:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+📍 Guess submitted by HumaneLobster in lobby 4X797X (40.73484183347048, -73.95575455632668)
+❌ Error submitting guess: Error: Player has already submitted a guess for this round
+    at GameManager.submitGuess (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/managers/game-manager.ts:177:13)
+    at Socket.<anonymous> (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/socket/handlers/game-handlers.ts:138:40)
+    at Socket.emit (node:events:507:28)
+    at Socket.emitUntyped (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/typed-events.js:69:22)
+    at /Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/socket.js:697:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+🏁 Round 1 ended in lobby 4X797X
+📍 Guess submitted by HumaneLobster in lobby 4X797X (40.623081304032326, -73.97907005232298)
+❌ Error submitting guess: Error: Player has already submitted a guess for this round
+    at GameManager.submitGuess (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/managers/game-manager.ts:177:13)
+    at Socket.<anonymous> (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/src/socket/handlers/game-handlers.ts:138:40)
+    at Socket.emit (node:events:507:28)
+    at Socket.emitUntyped (/Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/typed-events.js:69:22)
+    at /Users/bryanzacarias/Documents/Github Repos/NYC-GeoGuesser/server/node_modules/socket.io/dist/socket.js:697:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+📍 Guess submitted by ExtraSoda in lobby 4X797X (40.736973135571446, -73.89670879049658)
+🏁 Round 2 ended in lobby 4X797X
+📍 Guess submitted by ExtraSoda in lobby 4X797X (40.68423042396762, -73.9782787882713)
+📍 Guess submitted by HumaneLobster in lobby 4X797X (40.672760101239106, -73.97077237521121)
+🏁 Round 3 ended in lobby 4X797X
+📍 Guess submitted by ExtraSoda in lobby 4X797X (40.627094326506295, -74.02078492599804)
+📍 Guess submitted by HumaneLobster in lobby 4X797X (40.783806449133806, -73.95400462215915)
+🏁 Round 4 ended in lobby 4X797X
+📍 Guess submitted by ExtraSoda in lobby 4X797X (40.61507248329829, -73.95707749786182)
+📍 Guess submitted by HumaneLobster in lobby 4X797X (40.61623680852111, -73.95575731865857)
+🏁 Round 5 ended in lobby 4X797X
+🎉 Game finished in lobby 4X797X
+Cleaned up 1 expired lobbies

@@ -1,0 +1,2123 @@
+[
+  {
+    "station_name": "Times Square-42nd Street",
+    "line": "1,2,3,7,N,Q,R,S,W",
+    "latitude": 40.7547,
+    "longitude": -73.9871,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Grand Central-42nd Street",
+    "line": "4,5,6,7,S",
+    "latitude": 40.7527,
+    "longitude": -73.9773,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Union Square-14th Street",
+    "line": "4,5,6,L,N,Q,R,W",
+    "latitude": 40.7347,
+    "longitude": -73.9898,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Herald Square-34th Street",
+    "line": "B,D,F,M,N,Q,R,W",
+    "latitude": 40.7506,
+    "longitude": -73.9884,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Columbus Circle-59th Street",
+    "line": "1,A,B,C,D",
+    "latitude": 40.7682,
+    "longitude": -73.9815,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Brooklyn Bridge-City Hall",
+    "line": "4,5,6",
+    "latitude": 40.7128,
+    "longitude": -74.0048,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Wall Street",
+    "line": "4,5",
+    "latitude": 40.7074,
+    "longitude": -74.0113,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Fulton Street",
+    "line": "2,3,4,5,A,C,J,Z",
+    "latitude": 40.7103,
+    "longitude": -74.0070,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "World Trade Center",
+    "line": "E",
+    "latitude": 40.7127,
+    "longitude": -74.0095,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Chambers Street",
+    "line": "1,2,3",
+    "latitude": 40.7150,
+    "longitude": -74.0093,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Canal Street",
+    "line": "6,J,Z,N,Q,R,W",
+    "latitude": 40.7190,
+    "longitude": -74.0015,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Spring Street",
+    "line": "6",
+    "latitude": 40.7223,
+    "longitude": -73.9973,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Bleecker Street",
+    "line": "6",
+    "latitude": 40.7256,
+    "longitude": -73.9942,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Astor Place",
+    "line": "6",
+    "latitude": 40.7301,
+    "longitude": -73.9914,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "23rd Street",
+    "line": "6",
+    "latitude": 40.7394,
+    "longitude": -73.9863,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "28th Street",
+    "line": "6",
+    "latitude": 40.7438,
+    "longitude": -73.9842,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "33rd Street",
+    "line": "6",
+    "latitude": 40.7461,
+    "longitude": -73.9827,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "51st Street",
+    "line": "6",
+    "latitude": 40.7571,
+    "longitude": -73.9720,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "59th Street",
+    "line": "4,5,6",
+    "latitude": 40.7626,
+    "longitude": -73.9672,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "68th Street-Hunter College",
+    "line": "6",
+    "latitude": 40.7681,
+    "longitude": -73.9641,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "77th Street",
+    "line": "6",
+    "latitude": 40.7738,
+    "longitude": -73.9594,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "86th Street",
+    "line": "4,5,6",
+    "latitude": 40.7794,
+    "longitude": -73.9555,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "96th Street",
+    "line": "6",
+    "latitude": 40.7906,
+    "longitude": -73.9514,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "103rd Street",
+    "line": "6",
+    "latitude": 40.7906,
+    "longitude": -73.9478,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "116th Street",
+    "line": "6",
+    "latitude": 40.7978,
+    "longitude": -73.9410,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "125th Street",
+    "line": "4,5,6",
+    "latitude": 40.8043,
+    "longitude": -73.9370,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Prince Street",
+    "line": "N,R,W",
+    "latitude": 40.7243,
+    "longitude": -73.9977,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "8th Street-NYU",
+    "line": "N,R,W",
+    "latitude": 40.7306,
+    "longitude": -73.9926,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "14th Street-Union Square",
+    "line": "L,N,Q,R,W,4,5,6",
+    "latitude": 40.7358,
+    "longitude": -73.9910,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "23rd Street",
+    "line": "N,R,W",
+    "latitude": 40.7421,
+    "longitude": -73.9897,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "28th Street",
+    "line": "N,R,W",
+    "latitude": 40.7455,
+    "longitude": -73.9881,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "34th Street-Penn Station",
+    "line": "1,2,3,A,C,E",
+    "latitude": 40.7506,
+    "longitude": -73.9909,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "42nd Street-Port Authority",
+    "line": "A,C,E",
+    "latitude": 40.7570,
+    "longitude": -73.9897,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "50th Street",
+    "line": "1",
+    "latitude": 40.7616,
+    "longitude": -73.9837,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "72nd Street",
+    "line": "1,2,3",
+    "latitude": 40.7782,
+    "longitude": -73.9818,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "79th Street",
+    "line": "1",
+    "latitude": 40.7838,
+    "longitude": -73.9791,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "86th Street",
+    "line": "1",
+    "latitude": 40.7885,
+    "longitude": -73.9764,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "96th Street",
+    "line": "1,2,3",
+    "latitude": 40.7948,
+    "longitude": -73.9721,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "103rd Street",
+    "line": "1",
+    "latitude": 40.7993,
+    "longitude": -73.9689,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "110th Street",
+    "line": "1",
+    "latitude": 40.8030,
+    "longitude": -73.9656,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "116th Street-Columbia University",
+    "line": "1",
+    "latitude": 40.8076,
+    "longitude": -73.9641,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "14th Street",
+    "line": "F,M",
+    "latitude": 40.7394,
+    "longitude": -74.0067,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "23rd Street",
+    "line": "F,M",
+    "latitude": 40.7429,
+    "longitude": -74.0030,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "34th Street-Herald Square",
+    "line": "B,D,F,M,N,Q,R,W",
+    "latitude": 40.7506,
+    "longitude": -73.9884,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "42nd Street-Bryant Park",
+    "line": "B,D,F,M",
+    "latitude": 40.7544,
+    "longitude": -73.9856,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "47-50th Streets-Rockefeller Center",
+    "line": "B,D,F,M",
+    "latitude": 40.7583,
+    "longitude": -73.9819,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "57th Street",
+    "line": "F",
+    "latitude": 40.7648,
+    "longitude": -73.9765,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Lexington Avenue/63rd Street",
+    "line": "F,Q",
+    "latitude": 40.7647,
+    "longitude": -73.9665,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Roosevelt Island",
+    "line": "F",
+    "latitude": 40.7619,
+    "longitude": -73.9524,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Atlantic Avenue-Barclays Center",
+    "line": "2,3,4,5,B,D,N,Q,R,W",
+    "latitude": 40.6840,
+    "longitude": -73.9767,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Brooklyn Bridge-High Street",
+    "line": "A,C",
+    "latitude": 40.6994,
+    "longitude": -73.9902,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Borough Hall",
+    "line": "2,3,4,5,R",
+    "latitude": 40.6924,
+    "longitude": -73.9901,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Jay Street-MetroTech",
+    "line": "A,C,F,R",
+    "latitude": 40.6923,
+    "longitude": -73.9873,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "DeKalb Avenue",
+    "line": "B,Q,R",
+    "latitude": 40.6900,
+    "longitude": -73.9814,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Prospect Park",
+    "line": "B,Q",
+    "latitude": 40.6618,
+    "longitude": -73.9619,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Park Slope-7th Avenue",
+    "line": "F,G",
+    "latitude": 40.6665,
+    "longitude": -73.9792,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "4th Avenue-9th Street",
+    "line": "F,G,R",
+    "latitude": 40.6700,
+    "longitude": -73.9896,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Union Street",
+    "line": "R",
+    "latitude": 40.6771,
+    "longitude": -73.9833,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "9th Street",
+    "line": "F,G",
+    "latitude": 40.6703,
+    "longitude": -73.9925,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Carroll Street",
+    "line": "F,G",
+    "latitude": 40.6804,
+    "longitude": -73.9951,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Smith-9th Streets",
+    "line": "F,G",
+    "latitude": 40.6739,
+    "longitude": -73.9956,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Bergen Street",
+    "line": "F,G",
+    "latitude": 40.6860,
+    "longitude": -73.9903,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Grand Army Plaza",
+    "line": "2,3",
+    "latitude": 40.6753,
+    "longitude": -73.9708,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Eastern Parkway-Brooklyn Museum",
+    "line": "2,3",
+    "latitude": 40.6716,
+    "longitude": -73.9640,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Franklin Avenue",
+    "line": "2,3,4,5",
+    "latitude": 40.6813,
+    "longitude": -73.9580,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Bedford Avenue",
+    "line": "L",
+    "latitude": 40.7173,
+    "longitude": -73.9566,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Lorimer Street",
+    "line": "L",
+    "latitude": 40.7140,
+    "longitude": -73.9474,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Graham Avenue",
+    "line": "L",
+    "latitude": 40.7148,
+    "longitude": -73.9436,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Grand Street",
+    "line": "L",
+    "latitude": 40.7118,
+    "longitude": -73.9396,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Montrose Avenue",
+    "line": "L",
+    "latitude": 40.7074,
+    "longitude": -73.9404,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Coney Island-Stillwell Avenue",
+    "line": "D,F,N,Q",
+    "latitude": 40.5775,
+    "longitude": -73.9814,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Brighton Beach",
+    "line": "B,Q",
+    "latitude": 40.5776,
+    "longitude": -73.9612,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Sheepshead Bay",
+    "line": "B,Q",
+    "latitude": 40.5865,
+    "longitude": -73.9538,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Kings Highway",
+    "line": "B,Q",
+    "latitude": 40.6087,
+    "longitude": -73.9573,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue M",
+    "line": "B,Q",
+    "latitude": 40.6175,
+    "longitude": -73.9593,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Bay Ridge-95th Street",
+    "line": "R",
+    "latitude": 40.6163,
+    "longitude": -74.0307,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Atlantic Avenue-Barclays Center",
+    "line": "2,3,4,5,B,D,N,Q,R,W",
+    "latitude": 40.6840,
+    "longitude": -73.9767,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Prospect Park",
+    "line": "B,Q",
+    "latitude": 40.6618,
+    "longitude": -73.9619,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Coney Island-Stillwell Avenue",
+    "line": "D,F,N,Q",
+    "latitude": 40.5775,
+    "longitude": -73.9814,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Williamsburg Bridge-Delancey Street",
+    "line": "J,M,Z",
+    "latitude": 40.7184,
+    "longitude": -73.9880,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Bedford Avenue",
+    "line": "L",
+    "latitude": 40.7173,
+    "longitude": -73.9566,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Bay Ridge-95th Street",
+    "line": "R",
+    "latitude": 40.6163,
+    "longitude": -74.0307,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Yankee Stadium-161st Street",
+    "line": "4,6,B,D",
+    "latitude": 40.8277,
+    "longitude": -73.9258,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Fordham Road",
+    "line": "4,6",
+    "latitude": 40.8618,
+    "longitude": -73.9002,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "125th Street",
+    "line": "4,5,6",
+    "latitude": 40.8043,
+    "longitude": -73.9370,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Astoria-Ditmars Boulevard",
+    "line": "N,W",
+    "latitude": 40.7751,
+    "longitude": -73.9126,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Flushing-Main Street",
+    "line": "7",
+    "latitude": 40.7596,
+    "longitude": -73.8303,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Jamaica Center-Parsons/Archer",
+    "line": "E,J,Z",
+    "latitude": 40.7022,
+    "longitude": -73.8007,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Forest Hills-71st Avenue",
+    "line": "E,F,M,R",
+    "latitude": 40.7217,
+    "longitude": -73.8448,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Long Island City-Court Square",
+    "line": "7,E,M,G",
+    "latitude": 40.7465,
+    "longitude": -73.9460,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Wall Street",
+    "line": "4,5",
+    "latitude": 40.7074,
+    "longitude": -74.0113,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "96th Street",
+    "line": "6",
+    "latitude": 40.7906,
+    "longitude": -73.9514,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "86th Street",
+    "line": "4,5,6",
+    "latitude": 40.7794,
+    "longitude": -73.9555,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Central Park North-110th Street",
+    "line": "2,3",
+    "latitude": 40.7989,
+    "longitude": -73.9516,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "59th Street-Columbus Circle",
+    "line": "A,B,C,D,1",
+    "latitude": 40.7682,
+    "longitude": -73.9815,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Jay Street-MetroTech",
+    "line": "A,C,F,R",
+    "latitude": 40.6923,
+    "longitude": -73.9873,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Park Slope-7th Avenue",
+    "line": "F,G",
+    "latitude": 40.6665,
+    "longitude": -73.9792,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Sunset Park-45th Street",
+    "line": "N,R",
+    "latitude": 40.6482,
+    "longitude": -74.0103,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Pelham Bay Park",
+    "line": "6",
+    "latitude": 40.8521,
+    "longitude": -73.8282,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Whitehall Street-South Ferry",
+    "line": "R,W",
+    "latitude": 40.7019,
+    "longitude": -74.0134,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Brighton Beach",
+    "line": "B,Q",
+    "latitude": 40.5776,
+    "longitude": -73.9612,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "High Street-Brooklyn Bridge",
+    "line": "A,C",
+    "latitude": 40.6994,
+    "longitude": -73.9902,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Borough Hall",
+    "line": "2,3,4,5,R",
+    "latitude": 40.6924,
+    "longitude": -73.9901,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Rockaway Beach-116th Street",
+    "line": "A,S",
+    "latitude": 40.5815,
+    "longitude": -73.8370,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Greenpoint Avenue",
+    "line": "G",
+    "latitude": 40.7314,
+    "longitude": -73.9540,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Hunters Point Avenue",
+    "line": "7",
+    "latitude": 40.7425,
+    "longitude": -73.9487,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Roosevelt Island",
+    "line": "F",
+    "latitude": 40.7619,
+    "longitude": -73.9524,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Lexington Avenue/59th Street",
+    "line": "4,5,6,N,Q,R,W",
+    "latitude": 40.7626,
+    "longitude": -73.9672,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Bowling Green",
+    "line": "4,5",
+    "latitude": 40.7049,
+    "longitude": -74.0137,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "South Ferry",
+    "line": "1",
+    "latitude": 40.7019,
+    "longitude": -74.0134,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "World Trade Center",
+    "line": "E",
+    "latitude": 40.7127,
+    "longitude": -74.0095,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Cortlandt Street",
+    "line": "R,W",
+    "latitude": 40.7100,
+    "longitude": -74.0116,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Fulton Street",
+    "line": "2,3,4,5,A,C,J,Z",
+    "latitude": 40.7103,
+    "longitude": -74.0070,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Canal Street",
+    "line": "6,J,Z,N,Q,R,W",
+    "latitude": 40.7190,
+    "longitude": -74.0015,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Prince Street",
+    "line": "N,R,W",
+    "latitude": 40.7243,
+    "longitude": -73.9977,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Spring Street",
+    "line": "6",
+    "latitude": 40.7223,
+    "longitude": -73.9973,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Bleecker Street",
+    "line": "6",
+    "latitude": 40.7256,
+    "longitude": -73.9942,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Astor Place",
+    "line": "6",
+    "latitude": 40.7301,
+    "longitude": -73.9914,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "23rd Street",
+    "line": "6",
+    "latitude": 40.7394,
+    "longitude": -73.9863,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "28th Street",
+    "line": "6",
+    "latitude": 40.7438,
+    "longitude": -73.9842,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "33rd Street",
+    "line": "6",
+    "latitude": 40.7461,
+    "longitude": -73.9827,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "51st Street",
+    "line": "6",
+    "latitude": 40.7571,
+    "longitude": -73.9720,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "59th Street",
+    "line": "4,5,6",
+    "latitude": 40.7626,
+    "longitude": -73.9672,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "68th Street-Hunter College",
+    "line": "6",
+    "latitude": 40.7681,
+    "longitude": -73.9641,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "77th Street",
+    "line": "6",
+    "latitude": 40.7738,
+    "longitude": -73.9594,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "103rd Street",
+    "line": "6",
+    "latitude": 40.7906,
+    "longitude": -73.9478,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "116th Street",
+    "line": "6",
+    "latitude": 40.7978,
+    "longitude": -73.9410,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Marcy Avenue",
+    "line": "J,M,Z",
+    "latitude": 40.7081,
+    "longitude": -73.9575,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Myrtle-Wyckoff Avenues",
+    "line": "L,M",
+    "latitude": 40.6996,
+    "longitude": -73.9101,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Canarsie-Rockaway Parkway",
+    "line": "L",
+    "latitude": 40.6467,
+    "longitude": -73.9015,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "8th Avenue-14th Street",
+    "line": "A,C,E,L",
+    "latitude": 40.7402,
+    "longitude": -74.0016,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "161st Street-Yankee Stadium",
+    "line": "4,6,B,D",
+    "latitude": 40.8276,
+    "longitude": -73.9258,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "149th Street-Grand Concourse",
+    "line": "2,4,5,6",
+    "latitude": 40.8183,
+    "longitude": -73.9273,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "125th Street",
+    "line": "A,B,C,D",
+    "latitude": 40.8072,
+    "longitude": -73.9520,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "135th Street",
+    "line": "2,3",
+    "latitude": 40.8140,
+    "longitude": -73.9308,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "138th Street-Grand Concourse",
+    "line": "4,5,6",
+    "latitude": 40.8138,
+    "longitude": -73.9300,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "145th Street",
+    "line": "A,B,C,D",
+    "latitude": 40.8206,
+    "longitude": -73.9448,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "155th Street",
+    "line": "A,B,C,D",
+    "latitude": 40.8304,
+    "longitude": -73.9372,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "167th Street",
+    "line": "A,B,C,D",
+    "latitude": 40.8353,
+    "longitude": -73.9210,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "170th Street",
+    "line": "4,5,6",
+    "latitude": 40.8397,
+    "longitude": -73.9176,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "174th-175th Streets",
+    "line": "A,B,C,D",
+    "latitude": 40.8467,
+    "longitude": -73.9105,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Fordham Road",
+    "line": "4,5,6",
+    "latitude": 40.8618,
+    "longitude": -73.9002,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "183rd Street",
+    "line": "4,5,6",
+    "latitude": 40.8751,
+    "longitude": -73.8874,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Burnside Avenue",
+    "line": "4,5,6",
+    "latitude": 40.8534,
+    "longitude": -73.9077,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Mt Eden Avenue",
+    "line": "4,5,6",
+    "latitude": 40.8442,
+    "longitude": -73.9145,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Tremont Avenue",
+    "line": "B,D",
+    "latitude": 40.8498,
+    "longitude": -73.9050,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "182nd-183rd Streets",
+    "line": "B,D",
+    "latitude": 40.8564,
+    "longitude": -73.8978,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Kingsbridge Road",
+    "line": "B,D",
+    "latitude": 40.8660,
+    "longitude": -73.8972,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Bedford Park Boulevard",
+    "line": "B,D",
+    "latitude": 40.8729,
+    "longitude": -73.8887,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Norwood-205th Street",
+    "line": "B,D",
+    "latitude": 40.8747,
+    "longitude": -73.8783,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Pelham Bay Park",
+    "line": "6",
+    "latitude": 40.8527,
+    "longitude": -73.8285,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Buhre Avenue",
+    "line": "6",
+    "latitude": 40.8465,
+    "longitude": -73.8327,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Middletown Road",
+    "line": "6",
+    "latitude": 40.8436,
+    "longitude": -73.8363,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Westchester Square-East Tremont Avenue",
+    "line": "6",
+    "latitude": 40.8398,
+    "longitude": -73.8425,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Zerega Avenue",
+    "line": "6",
+    "latitude": 40.8364,
+    "longitude": -73.8470,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Castle Hill Avenue",
+    "line": "6",
+    "latitude": 40.8342,
+    "longitude": -73.8513,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Parkchester",
+    "line": "6",
+    "latitude": 40.8330,
+    "longitude": -73.8581,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "St. Lawrence Avenue",
+    "line": "6",
+    "latitude": 40.8314,
+    "longitude": -73.8676,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Morrison Avenue-Soundview",
+    "line": "6",
+    "latitude": 40.8293,
+    "longitude": -73.8740,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Elder Avenue",
+    "line": "6",
+    "latitude": 40.8282,
+    "longitude": -73.8790,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Whitlock Avenue",
+    "line": "6",
+    "latitude": 40.8267,
+    "longitude": -73.8861,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Simpson Street",
+    "line": "6",
+    "latitude": 40.8244,
+    "longitude": -73.8929,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Intervale Avenue",
+    "line": "6",
+    "latitude": 40.8221,
+    "longitude": -73.8979,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Prospect Avenue",
+    "line": "2,5",
+    "latitude": 40.8192,
+    "longitude": -73.9023,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Jackson Avenue",
+    "line": "2,5",
+    "latitude": 40.8162,
+    "longitude": -73.9073,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "3rd Avenue-149th Street",
+    "line": "2,5",
+    "latitude": 40.8162,
+    "longitude": -73.9180,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Brook Avenue",
+    "line": "6",
+    "latitude": 40.8077,
+    "longitude": -73.9190,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Cypress Avenue",
+    "line": "6",
+    "latitude": 40.8056,
+    "longitude": -73.9144,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Longwood Avenue",
+    "line": "6",
+    "latitude": 40.8163,
+    "longitude": -73.8961,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Hunts Point Avenue",
+    "line": "6",
+    "latitude": 40.8209,
+    "longitude": -73.8907,
+    "borough": "The Bronx"
+  },
+  {
+    "station_name": "Inwood-207th Street",
+    "line": "A",
+    "latitude": 40.8677,
+    "longitude": -73.9196,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Dyckman Street",
+    "line": "A",
+    "latitude": 40.8606,
+    "longitude": -73.9278,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "181st Street",
+    "line": "A",
+    "latitude": 40.8512,
+    "longitude": -73.9370,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "175th Street",
+    "line": "A",
+    "latitude": 40.8470,
+    "longitude": -73.9400,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "168th Street",
+    "line": "A,C",
+    "latitude": 40.8406,
+    "longitude": -73.9401,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "145th Street",
+    "line": "A,B,C,D",
+    "latitude": 40.8264,
+    "longitude": -73.9459,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "135th Street",
+    "line": "B,C",
+    "latitude": 40.8178,
+    "longitude": -73.9514,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Cathedral Parkway-110th Street",
+    "line": "B,C",
+    "latitude": 40.8007,
+    "longitude": -73.9581,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "103rd Street",
+    "line": "B,C",
+    "latitude": 40.7965,
+    "longitude": -73.9609,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "96th Street",
+    "line": "B,C",
+    "latitude": 40.7933,
+    "longitude": -73.9642,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "86th Street",
+    "line": "B,C",
+    "latitude": 40.7886,
+    "longitude": -73.9686,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "81st Street-Museum of Natural History",
+    "line": "B,C",
+    "latitude": 40.7813,
+    "longitude": -73.9722,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "72nd Street",
+    "line": "B,C",
+    "latitude": 40.7764,
+    "longitude": -73.9759,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "59th Street-Columbus Circle",
+    "line": "A,B,C,D,1",
+    "latitude": 40.7682,
+    "longitude": -73.9815,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "50th Street",
+    "line": "C,E",
+    "latitude": 40.7624,
+    "longitude": -73.9857,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "14th Street-8th Avenue",
+    "line": "A,C,E,L",
+    "latitude": 40.7402,
+    "longitude": -74.0016,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "W 4th Street-Washington Square",
+    "line": "A,B,C,D,E,F,M",
+    "latitude": 40.7323,
+    "longitude": -74.0004,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Spring Street",
+    "line": "A,C,E",
+    "latitude": 40.7263,
+    "longitude": -74.0062,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Canal Street",
+    "line": "A,C,E",
+    "latitude": 40.7210,
+    "longitude": -74.0059,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Chambers Street",
+    "line": "A,C",
+    "latitude": 40.7141,
+    "longitude": -74.0091,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Park Place",
+    "line": "A,C",
+    "latitude": 40.7133,
+    "longitude": -74.0086,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "World Trade Center-Cortlandt",
+    "line": "A,C,E",
+    "latitude": 40.7126,
+    "longitude": -74.0099,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Rector Street",
+    "line": "R,W",
+    "latitude": 40.7072,
+    "longitude": -74.0134,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Whitehall Street-South Ferry",
+    "line": "R,W",
+    "latitude": 40.7013,
+    "longitude": -74.0131,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Court Street-Borough Hall",
+    "line": "R,W",
+    "latitude": 40.6924,
+    "longitude": -73.9901,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Lawrence Street-MetroTech",
+    "line": "R,W",
+    "latitude": 40.6925,
+    "longitude": -73.9891,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "DeKalb Avenue",
+    "line": "B,Q,R,W",
+    "latitude": 40.6900,
+    "longitude": -73.9814,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "36th Street",
+    "line": "D,N,R,W",
+    "latitude": 40.6555,
+    "longitude": -74.0041,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "45th Street",
+    "line": "R,W",
+    "latitude": 40.6484,
+    "longitude": -74.0103,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "53rd Street",
+    "line": "R,W",
+    "latitude": 40.6454,
+    "longitude": -74.0142,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "59th Street",
+    "line": "N,R,W",
+    "latitude": 40.6414,
+    "longitude": -74.0178,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "77th Street",
+    "line": "R,W",
+    "latitude": 40.6297,
+    "longitude": -74.0256,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "86th Street",
+    "line": "R,W",
+    "latitude": 40.6227,
+    "longitude": -74.0304,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Coney Island-Stillwell Avenue",
+    "line": "D,F,N,Q",
+    "latitude": 40.5775,
+    "longitude": -73.9814,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "West 8th Street-NY Aquarium",
+    "line": "F,Q",
+    "latitude": 40.5766,
+    "longitude": -73.9759,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Neptune Avenue",
+    "line": "F,Q",
+    "latitude": 40.5814,
+    "longitude": -73.9741,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue U",
+    "line": "F,Q",
+    "latitude": 40.5965,
+    "longitude": -73.9553,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue P",
+    "line": "F",
+    "latitude": 40.6088,
+    "longitude": -73.9580,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue N",
+    "line": "F",
+    "latitude": 40.6109,
+    "longitude": -73.9591,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue I",
+    "line": "F",
+    "latitude": 40.6257,
+    "longitude": -73.9614,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Ditmas Avenue",
+    "line": "F",
+    "latitude": 40.6356,
+    "longitude": -73.9629,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Church Avenue",
+    "line": "F,G",
+    "latitude": 40.6442,
+    "longitude": -73.9649,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Beverly Road",
+    "line": "F",
+    "latitude": 40.6447,
+    "longitude": -73.9637,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Cortelyou Road",
+    "line": "F",
+    "latitude": 40.6409,
+    "longitude": -73.9658,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Fort Hamilton Parkway",
+    "line": "F,G",
+    "latitude": 40.6404,
+    "longitude": -73.9759,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "15th Street-Prospect Park",
+    "line": "F,G",
+    "latitude": 40.6609,
+    "longitude": -73.9797,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Prospect Park",
+    "line": "B,Q",
+    "latitude": 40.6618,
+    "longitude": -73.9619,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Church Avenue",
+    "line": "B,Q",
+    "latitude": 40.6506,
+    "longitude": -73.9629,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Newkirk Plaza",
+    "line": "B,Q",
+    "latitude": 40.6357,
+    "longitude": -73.9624,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue H",
+    "line": "B,Q",
+    "latitude": 40.6290,
+    "longitude": -73.9617,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue J",
+    "line": "B,Q",
+    "latitude": 40.6251,
+    "longitude": -73.9612,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue M",
+    "line": "B,Q",
+    "latitude": 40.6175,
+    "longitude": -73.9593,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Kings Highway",
+    "line": "B,Q",
+    "latitude": 40.6087,
+    "longitude": -73.9573,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Avenue U",
+    "line": "B,Q",
+    "latitude": 40.5967,
+    "longitude": -73.9553,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Neck Road",
+    "line": "B,Q",
+    "latitude": 40.5944,
+    "longitude": -73.9549,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Sheepshead Bay",
+    "line": "B,Q",
+    "latitude": 40.5865,
+    "longitude": -73.9538,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Brighton Beach",
+    "line": "B,Q",
+    "latitude": 40.5776,
+    "longitude": -73.9612,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Ocean Parkway",
+    "line": "B,Q",
+    "latitude": 40.5762,
+    "longitude": -73.9679,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Parkside Avenue",
+    "line": "B,Q",
+    "latitude": 40.6553,
+    "longitude": -73.9617,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Astoria-Ditmars Boulevard",
+    "line": "N,W",
+    "latitude": 40.7750,
+    "longitude": -73.9120,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Astoria Boulevard",
+    "line": "N,W",
+    "latitude": 40.7701,
+    "longitude": -73.9178,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "30th Avenue",
+    "line": "N,W",
+    "latitude": 40.7667,
+    "longitude": -73.9213,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Broadway",
+    "line": "N,W",
+    "latitude": 40.7616,
+    "longitude": -73.9253,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "36th Avenue",
+    "line": "N,W",
+    "latitude": 40.7568,
+    "longitude": -73.9296,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "39th Avenue",
+    "line": "N,W",
+    "latitude": 40.7529,
+    "longitude": -73.9330,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Queensboro Plaza",
+    "line": "7,N,W",
+    "latitude": 40.7505,
+    "longitude": -73.9401,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "33rd Street-Rawson Street",
+    "line": "7",
+    "latitude": 40.7443,
+    "longitude": -73.9308,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "40th Street-Lowery Street",
+    "line": "7",
+    "latitude": 40.7434,
+    "longitude": -73.9244,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "46th Street-Bliss Street",
+    "line": "7",
+    "latitude": 40.7434,
+    "longitude": -73.9180,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "52nd Street",
+    "line": "7",
+    "latitude": 40.7436,
+    "longitude": -73.9123,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "61st Street-Woodside",
+    "line": "7",
+    "latitude": 40.7456,
+    "longitude": -73.9024,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "69th Street",
+    "line": "7",
+    "latitude": 40.7465,
+    "longitude": -73.8963,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "74th Street-Roosevelt Avenue",
+    "line": "7,E,F,M,R",
+    "latitude": 40.7462,
+    "longitude": -73.8915,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "82nd Street-Jackson Heights",
+    "line": "7",
+    "latitude": 40.7476,
+    "longitude": -73.8837,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "90th Street-Elmhurst Avenue",
+    "line": "7",
+    "latitude": 40.7484,
+    "longitude": -73.8761,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Junction Boulevard",
+    "line": "7",
+    "latitude": 40.7491,
+    "longitude": -73.8699,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "103rd Street-Corona Plaza",
+    "line": "7",
+    "latitude": 40.7498,
+    "longitude": -73.8628,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "111th Street",
+    "line": "7",
+    "latitude": 40.7517,
+    "longitude": -73.8552,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Mets-Willets Point",
+    "line": "7",
+    "latitude": 40.7547,
+    "longitude": -73.8456,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Flushing-Main Street",
+    "line": "7",
+    "latitude": 40.7591,
+    "longitude": -73.8303,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Jamaica-179th Street",
+    "line": "F",
+    "latitude": 40.7128,
+    "longitude": -73.7833,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "169th Street",
+    "line": "F",
+    "latitude": 40.7106,
+    "longitude": -73.7937,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Parsons Boulevard",
+    "line": "F",
+    "latitude": 40.7078,
+    "longitude": -73.8032,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Sutphin Boulevard",
+    "line": "F",
+    "latitude": 40.7055,
+    "longitude": -73.8115,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Briarwood",
+    "line": "E,F",
+    "latitude": 40.7099,
+    "longitude": -73.8204,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Kew Gardens-Union Turnpike",
+    "line": "E,F",
+    "latitude": 40.7148,
+    "longitude": -73.8310,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "75th Avenue",
+    "line": "E,F",
+    "latitude": 40.7181,
+    "longitude": -73.8370,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Forest Hills-71st Avenue",
+    "line": "E,F,M,R",
+    "latitude": 40.7219,
+    "longitude": -73.8441,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "67th Avenue",
+    "line": "E,F,M,R",
+    "latitude": 40.7262,
+    "longitude": -73.8522,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "63rd Drive-Rego Park",
+    "line": "E,F,M,R",
+    "latitude": 40.7296,
+    "longitude": -73.8614,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Woodhaven Boulevard",
+    "line": "E,F,M,R",
+    "latitude": 40.7336,
+    "longitude": -73.8691,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Grand Avenue-Newtown",
+    "line": "E,F,M,R",
+    "latitude": 40.7370,
+    "longitude": -73.8772,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Elmhurst Avenue",
+    "line": "E,F,M,R",
+    "latitude": 40.7423,
+    "longitude": -73.8824,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Jackson Heights-Roosevelt Avenue",
+    "line": "E,F,M,R,7",
+    "latitude": 40.7468,
+    "longitude": -73.8912,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Northern Boulevard",
+    "line": "E,F,M,R",
+    "latitude": 40.7440,
+    "longitude": -73.9065,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "46th Street",
+    "line": "E,F,M,R",
+    "latitude": 40.7440,
+    "longitude": -73.9180,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Steinway Street",
+    "line": "E,F,M,R",
+    "latitude": 40.7440,
+    "longitude": -73.9240,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "36th Street",
+    "line": "E,F,M,R",
+    "latitude": 40.7434,
+    "longitude": -73.9299,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Court Square-23rd Street",
+    "line": "E,M,G,7",
+    "latitude": 40.7466,
+    "longitude": -73.9459,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Lex Avenue/59th Street",
+    "line": "E,M",
+    "latitude": 40.7647,
+    "longitude": -73.9665,
+    "borough": "Manhattan"
+  },
+  {
+    "station_name": "Jamaica Center-Parsons/Archer",
+    "line": "E,J,Z",
+    "latitude": 40.7026,
+    "longitude": -73.8016,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Sutphin Boulevard-Archer Avenue",
+    "line": "E,J,Z",
+    "latitude": 40.7000,
+    "longitude": -73.8081,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "121st Street",
+    "line": "J,Z",
+    "latitude": 40.7003,
+    "longitude": -73.8284,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "111th Street",
+    "line": "J",
+    "latitude": 40.6975,
+    "longitude": -73.8370,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "104th Street",
+    "line": "J,Z",
+    "latitude": 40.6948,
+    "longitude": -73.8441,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Woodhaven Boulevard",
+    "line": "J,Z",
+    "latitude": 40.6919,
+    "longitude": -73.8514,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "85th Street-Forest Parkway",
+    "line": "J",
+    "latitude": 40.6923,
+    "longitude": -73.8581,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "75th Street-Elderts Lane",
+    "line": "J,Z",
+    "latitude": 40.6916,
+    "longitude": -73.8673,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Crescent Street",
+    "line": "J,Z",
+    "latitude": 40.6839,
+    "longitude": -73.8738,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Norwood Avenue",
+    "line": "J,Z",
+    "latitude": 40.6813,
+    "longitude": -73.8797,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Cleveland Street",
+    "line": "J",
+    "latitude": 40.6794,
+    "longitude": -73.8844,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Van Siclen Avenue",
+    "line": "J,Z",
+    "latitude": 40.6778,
+    "longitude": -73.8892,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Alabama Avenue",
+    "line": "J",
+    "latitude": 40.6762,
+    "longitude": -73.8940,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Broad Channel",
+    "line": "A,S",
+    "latitude": 40.6087,
+    "longitude": -73.8157,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 90th Street",
+    "line": "A,S",
+    "latitude": 40.5889,
+    "longitude": -73.8135,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 98th Street",
+    "line": "A,S",
+    "latitude": 40.5852,
+    "longitude": -73.8195,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 105th Street",
+    "line": "A,S",
+    "latitude": 40.5833,
+    "longitude": -73.8271,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Rockaway Park-Beach 116th Street",
+    "line": "A,S",
+    "latitude": 40.5815,
+    "longitude": -73.8370,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 67th Street",
+    "line": "A",
+    "latitude": 40.5916,
+    "longitude": -73.7980,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 60th Street",
+    "line": "A",
+    "latitude": 40.5930,
+    "longitude": -73.7888,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 44th Street",
+    "line": "A",
+    "latitude": 40.5931,
+    "longitude": -73.7762,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 36th Street",
+    "line": "A",
+    "latitude": 40.5953,
+    "longitude": -73.7689,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Beach 25th Street",
+    "line": "A",
+    "latitude": 40.6008,
+    "longitude": -73.7615,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Far Rockaway-Mott Avenue",
+    "line": "A",
+    "latitude": 40.6041,
+    "longitude": -73.7555,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Aqueduct Racetrack",
+    "line": "A",
+    "latitude": 40.6727,
+    "longitude": -73.8367,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Aqueduct-North Conduit Avenue",
+    "line": "A",
+    "latitude": 40.6686,
+    "longitude": -73.8340,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Howard Beach-JFK Airport",
+    "line": "A",
+    "latitude": 40.6604,
+    "longitude": -73.8304,
+    "borough": "Queens"
+  },
+  {
+    "station_name": "Euclid Avenue",
+    "line": "A,C",
+    "latitude": 40.6754,
+    "longitude": -73.8722,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Grant Avenue",
+    "line": "A",
+    "latitude": 40.6770,
+    "longitude": -73.8671,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "80th Street",
+    "line": "A",
+    "latitude": 40.6795,
+    "longitude": -73.8595,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "88th Street",
+    "line": "A",
+    "latitude": 40.6794,
+    "longitude": -73.8514,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Rockaway Boulevard",
+    "line": "A",
+    "latitude": 40.6804,
+    "longitude": -73.8434,
+    "borough": "Brooklyn"
+  },
+  {
+    "station_name": "Ozone Park-Lefferts Boulevard",
+    "line": "A",
+    "latitude": 40.6856,
+    "longitude": -73.8259,
+    "borough": "Queens"
+  }
+] 
