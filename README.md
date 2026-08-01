@@ -1,5 +1,7 @@
 # NYC GeoGuesser
 
+**[PLAY HERE](https://www.nycgeoguesser.com)**
+
 A multiplayer location guessing game where players compete to identify NYC MTA train stations on a map. Test your knowledge of the New York City subway system in fast-paced rounds with friends!
 
 *Heavily inspired by [Ben Musch's](https://github.com/BenMusch) amazing transit guessing game - check it out [here](https://nycguessr.com/)!*
