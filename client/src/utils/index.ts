@@ -90,6 +90,11 @@ export const clearPlayerData = (): void => {
   removeFromStorage(STORAGE_KEYS.PLAYER_NAME);
 };
 
+// Human-friendly distance, e.g. "240 m" or "1.6 km"
+export const formatDistance = (meters: number): string => {
+  return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
+};
+
 // Lobby session (per tab, survives refresh) used to rejoin after a disconnect
 export const saveLobbySession = (sessionToken: string): void => {
   try {

@@ -16,6 +16,7 @@ import type {
   GameEndEvent,
   RoundResults,
   ServerLobby,
+  PublicStation,
 } from '../types/socket-events';
 import { GAME_CONFIG } from '../constants';
 import { socketService } from '../services/socketService';
@@ -24,24 +25,11 @@ import { useLobbyStore } from '../stores/lobbyStore';
 
 interface GameLogicState {
   currentRound: number;
-  currentStation: {
-    station_name: string;
-    line: string;
-    latitude: number;
-    longitude: number;
-    borough: string;
-    trains: string[];
-  } | null;
-  guesses: Array<{
-    playerId: string;
-    playerName: string;
-    lat: number;
-    lng: number;
-    distance: number;
-    points: number;
-    submittedAt: number;
-  }>;
-  players: Array<{ id: string; name: string; score: number }>;
+  currentStation: PublicStation | null;
+  /** This player's own pin; everyone else's stays hidden until the round ends */
+  myGuess: { lat: number; lng: number } | null;
+  /** Who has guessed this round (not where) */
+  guessedPlayerIds: string[];
   timeRemaining: number;
   isRoundActive: boolean;
   isCountdown: boolean;
@@ -51,22 +39,20 @@ interface GameLogicState {
     finalScores: Array<{ playerId: string; playerName: string; totalScore: number }>;
     winner: { playerId: string; playerName: string; totalScore: number };
   } | null;
-  isLoading: boolean;
   error: string | null;
 }
 
 const initialState: GameLogicState = {
   currentRound: 0,
   currentStation: null,
-  guesses: [],
-  players: [],
+  myGuess: null,
+  guessedPlayerIds: [],
   timeRemaining: 0,
   isRoundActive: false,
   isCountdown: false,
   countdownTime: 0,
   roundResults: null,
   gameResults: null,
-  isLoading: false,
   error: null,
 };
 
@@ -99,7 +85,8 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       currentStation: data.station,
       isRoundActive: false,
       timeRemaining: 0,
-      guesses: [],
+      myGuess: null,
+      guessedPlayerIds: [],
       roundResults: null,
     }));
     
@@ -148,7 +135,9 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       timeRemaining: data.timer,
       currentStation: data.station,
       currentRound: data.round,
-      guesses: [],
+      // A reconnect resends the running round; keep our pin if it's the same one
+      myGuess: prev.currentRound === data.round ? prev.myGuess : null,
+      guessedPlayerIds: prev.currentRound === data.round ? prev.guessedPlayerIds : [],
       roundResults: null,
     }));
     
@@ -190,7 +179,6 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       isRoundActive: false,
       timeRemaining: 0,
       roundResults: data.results,
-      guesses: data.results.guesses,
     }));
     
     // Check if game is complete
@@ -242,6 +230,9 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       return;
     }
 
+    // Show our own pin right away; nobody else sees it until the round ends
+    setState(prev => ({ ...prev, myGuess: { lat, lng } }));
+
     try {
       await submitPlayerGuess(lat, lng);
       // Guess will be included in roundEnd results
@@ -254,27 +245,12 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
     }
   }, [currentPlayerId, state.isRoundActive]);
 
-  // Handle lobby updates during active rounds to show guesses in real-time
+  // Track who has guessed during the round (the server hides where)
   const handleLobbyUpdate = useCallback((serverLobby: ServerLobby) => {
-    // Only process lobby updates during active rounds to extract guesses
-    if (serverLobby.gameState === 'active') {
-      // Extract guesses from player.currentRoundGuess
-      const activeGuesses = serverLobby.players
-        .filter(p => p.currentRoundGuess !== null)
-        .map(player => ({
-          playerId: player.id,
-          playerName: player.username,
-          lat: player.currentRoundGuess!.lat,
-          lng: player.currentRoundGuess!.lng,
-          distance: 0, // Will be calculated at round end
-          points: 0, // Will be calculated at round end
-          submittedAt: Date.now(), // Approximate timestamp
-        }));
-
-      // Update guesses state to show markers on map
+    if (serverLobby.gameState === 'countdown' || serverLobby.gameState === 'active') {
       setState(prev => ({
         ...prev,
-        guesses: activeGuesses,
+        guessedPlayerIds: serverLobby.players.filter(p => p.hasGuessed).map(p => p.id),
       }));
     }
   }, []);
@@ -339,23 +315,21 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
 
   // Check if current player has guessed
   const hasCurrentPlayerGuessed = useCallback((): boolean => {
-    if (!currentPlayerId) return false;
-    return state.guesses.some(guess => guess.playerId === currentPlayerId);
-  }, [currentPlayerId, state.guesses]);
+    return state.myGuess !== null;
+  }, [state.myGuess]);
 
   return {
     // State
     currentRound: state.currentRound,
     currentStation: state.currentStation,
-    guesses: state.guesses,
-    players: state.players,
+    myGuess: state.myGuess,
+    guessedPlayerIds: state.guessedPlayerIds,
     timeRemaining: state.timeRemaining,
     isRoundActive: state.isRoundActive,
     isCountdown: state.isCountdown,
     countdownTime: state.countdownTime,
     roundResults: state.roundResults,
     gameResults: state.gameResults,
-    isLoading: state.isLoading,
     error: state.error,
 
     // Actions

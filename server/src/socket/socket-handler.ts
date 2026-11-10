@@ -5,6 +5,7 @@ import { setupLobbyHandlers } from './handlers/lobby-handlers';
 import { setupGameHandlers } from './handlers/game-handlers';
 import { setupTimerHandlers, clearTimer } from './handlers/timer-handlers';
 import { SERVER_EVENTS } from '../types/events';
+import { toPublicLobby } from '../utils/public-views';
 
 /**
  * Socket handler setup
@@ -49,7 +50,7 @@ function handleDisconnection(
 ): void {
   const lobby = lobbyManager.markPlayerDisconnected(socket.id, (lobbyId, updatedLobby) => {
     if (updatedLobby) {
-      io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: updatedLobby });
+      io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(updatedLobby) });
     } else {
       // Last player gave up their seat - stop the game loop for this lobby
       clearTimer(lobbyId);
@@ -59,6 +60,6 @@ function handleDisconnection(
 
   if (lobby) {
     // Let remaining players see who dropped
-    socket.to(lobby.id).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby });
+    socket.to(lobby.id).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(lobby) });
   }
 }

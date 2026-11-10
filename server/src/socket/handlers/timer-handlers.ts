@@ -5,6 +5,7 @@ import type { Lobby } from '../../types/lobby';
 import { SERVER_EVENTS } from '../../types/events';
 import { GAME_CONFIG, TIMER_CONFIG } from '../../config/constants';
 import { parseStationTrains } from '../../utils/station-filter';
+import { toPublicLobby, toPublicStation } from '../../utils/public-views';
 
 /**
  * Timer intervals for each lobby
@@ -54,7 +55,7 @@ export function startCountdownTimer(
 
   // Emit initial countdown
   io.to(lobbyId).emit(SERVER_EVENTS.COUNTDOWN_START, {
-    station,
+    station: toPublicStation(station),
     countdown,
   });
 
@@ -65,7 +66,7 @@ export function startCountdownTimer(
     if (countdown > 0) {
       // Emit countdown update
       io.to(lobbyId).emit(SERVER_EVENTS.COUNTDOWN_START, {
-        station,
+        station: toPublicStation(station),
         countdown,
       });
     } else {
@@ -103,7 +104,7 @@ export function startRoundTimer(
 
   // Emit round start
   io.to(lobbyId).emit(SERVER_EVENTS.ROUND_START, {
-    station,
+    station: toPublicStation(station),
     timer: GAME_CONFIG.ROUND_DURATION,
     round: updatedLobby.currentRound,
   });
@@ -160,7 +161,7 @@ function endRound(
   // Emit lobby update with updated player scores
   if (updatedLobby) {
     io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, {
-      lobby: updatedLobby,
+      lobby: toPublicLobby(updatedLobby),
     });
   }
 
@@ -186,7 +187,7 @@ function endRound(
       }
 
       // Lobby is back in 'waiting' - let clients know a rematch can start
-      io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: updatedLobby });
+      io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(updatedLobby) });
     } else {
       // Start next round
       lobbyManager.updateLobby(lobbyId, updatedLobby);
@@ -198,7 +199,7 @@ function endRound(
         startCountdownTimer(io, lobbyId, lobbyManager, gameManager, stationWithTrains);
       }
     }
-  }, 3000); // 3 second delay between rounds
+  }, GAME_CONFIG.REVEAL_DURATION * 1000); // Players look over the revealed map
 }
 
 /**
@@ -212,7 +213,7 @@ export function emitCurrentGameState(socket: Socket, lobby: Lobby): void {
 
   const elapsedSeconds = (Date.now() - lobby.roundStartTime) / 1000;
   const remaining = Math.max(Math.ceil(lobby.roundTimer - elapsedSeconds), 0);
-  const station = parseStationTrains(lobby.currentStation);
+  const station = toPublicStation(lobby.currentStation);
 
   if (lobby.gameState === 'countdown') {
     socket.emit(SERVER_EVENTS.COUNTDOWN_START, { station, countdown: remaining });

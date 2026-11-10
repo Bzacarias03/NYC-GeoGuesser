@@ -16,8 +16,8 @@ export const MAP_CONFIG = {
     latitude: 40.64817,
     zoom: 11,
   },
-  MAX_ZOOM: 12.5,
-  MIN_ZOOM: 9,
+  MAX_ZOOM: 13.5,
+  MIN_ZOOM: 10, // Also the end-of-round reveal zoom
   NYC_BOUNDS: {
     north: 40.9476,
     south: 40.5074,
@@ -27,6 +27,9 @@ export const MAP_CONFIG = {
 } as const;
 
 // Scoring Configuration
+// Shared text style for labels drawn on the map (guess pins, edge markers, station)
+export const MAP_LABEL_CLASS = 'px-2 py-1 rounded text-white text-xs font-bold leading-tight whitespace-nowrap shadow';
+
 // UI Configuration
 export const UI_CONFIG = {
   ANIMATION_DURATION: 300, // milliseconds

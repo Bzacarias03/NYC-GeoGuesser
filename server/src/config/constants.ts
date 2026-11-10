@@ -8,6 +8,8 @@ export const GAME_CONFIG = {
   ROUND_DURATION: 30,
   /** Countdown duration before each round in seconds */
   COUNTDOWN_DURATION: 5,
+  /** How long the end-of-round map reveal is shown, in seconds */
+  REVEAL_DURATION: 5,
   /** Maximum points per round */
   POINTS_MAX: 5000,
   /** Minimum points per round */

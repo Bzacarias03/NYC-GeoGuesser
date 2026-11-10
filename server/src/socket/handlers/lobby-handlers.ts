@@ -3,6 +3,7 @@ import type { LobbyManager, GameManager, PlayerManager } from '../../managers';
 import type { StationWithTrains } from '../../types/station';
 import { CLIENT_EVENTS, SERVER_EVENTS, type CreateLobbyEvent, type JoinLobbyEvent, type RejoinLobbyEvent } from '../../types/events';
 import { clearTimer, emitCurrentGameState } from './timer-handlers';
+import { toPublicLobby } from '../../utils/public-views';
 
 /**
  * Setup lobby event handlers
@@ -46,7 +47,7 @@ export function setupLobbyHandlers(
 
       // Emit lobby joined event
       socket.emit(SERVER_EVENTS.LOBBY_JOINED, {
-        lobby,
+        lobby: toPublicLobby(lobby),
         player: hostPlayer,
         sessionToken: lobbyManager.getSessionToken(hostPlayer.id),
       });
@@ -98,7 +99,7 @@ export function setupLobbyHandlers(
 
       // Emit lobby joined event to the joiner
       socket.emit(SERVER_EVENTS.LOBBY_JOINED, {
-        lobby,
+        lobby: toPublicLobby(lobby),
         player: joinedPlayer,
         sessionToken: lobbyManager.getSessionToken(joinedPlayer.id),
       });
@@ -106,7 +107,7 @@ export function setupLobbyHandlers(
       // Broadcast lobby update to ALL players in the lobby (including the joiner)
       // This ensures the joiner receives the update for their subscription
       io.to(lobby.id).emit(SERVER_EVENTS.LOBBY_UPDATE, {
-        lobby,
+        lobby: toPublicLobby(lobby),
       });
     } catch (error) {
       socket.emit(SERVER_EVENTS.ERROR, {
@@ -142,7 +143,7 @@ export function setupLobbyHandlers(
       if (updatedLobby) {
         // Broadcast lobby update to remaining players
         socket.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, {
-          lobby: updatedLobby,
+          lobby: toPublicLobby(updatedLobby),
         });
       } else {
         // Last player left - stop the game loop for this lobby
@@ -174,8 +175,8 @@ export function setupLobbyHandlers(
       const { lobby, player } = lobbyManager.rejoinLobby(sessionToken, socket.id);
       socket.join(lobby.id);
 
-      socket.emit(SERVER_EVENTS.LOBBY_JOINED, { lobby, player, sessionToken });
-      io.to(lobby.id).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby });
+      socket.emit(SERVER_EVENTS.LOBBY_JOINED, { lobby: toPublicLobby(lobby), player, sessionToken });
+      io.to(lobby.id).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(lobby) });
       emitCurrentGameState(socket, lobby);
     } catch (error) {
       socket.emit(SERVER_EVENTS.ERROR, {

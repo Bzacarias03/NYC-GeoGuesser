@@ -35,6 +35,12 @@ export interface StationWithTrains extends Station {
 }
 
 /**
+ * Station as sent while a round is in play: name and lines only.
+ * Coordinates arrive with the round results.
+ */
+export type PublicStation = Omit<StationWithTrains, 'latitude' | 'longitude' | 'coordinates'>;
+
+/**
  * Player object from server
  */
 export interface ServerPlayer {
@@ -47,6 +53,8 @@ export interface ServerPlayer {
   connected: boolean;
   socketId: string;
   color?: string;
+  /** Whether the player has guessed this round (guess itself is hidden until the round ends) */
+  hasGuessed: boolean;
 }
 
 /**
@@ -58,7 +66,7 @@ export interface ServerLobby {
   players: ServerPlayer[];
   gameState: 'waiting' | 'countdown' | 'active' | 'results' | 'finished';
   currentRound: number;
-  currentStation: StationWithTrains | null;
+  currentStation: StationWithTrains | PublicStation | null;
   roundTimer: number;
   roundStartTime: number | null;
   gameResults: {
@@ -135,12 +143,12 @@ export interface LobbyUpdateEvent {
 }
 
 export interface CountdownStartEvent {
-  station: StationWithTrains;
+  station: PublicStation;
   countdown: number; // seconds remaining
 }
 
 export interface RoundStartEvent {
-  station: StationWithTrains;
+  station: PublicStation;
   timer: number; // seconds remaining
   round: number;
 }

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { LocationOn, CheckCircle, RadioButtonUnchecked } from '@mui/icons-material';
 import { PLAYER_COLORS, UI_CONFIG } from '../../constants';
+import { formatDistance } from '../../utils';
 import "../../subway-icons.scss";
 
 interface Player {
@@ -9,6 +10,8 @@ interface Player {
   score: number;
   hasGuessed?: boolean;
   color?: string;
+  /** This round's result, shown once the round ends (null = didn't guess) */
+  roundResult?: { points: number; distance: number } | null;
 }
 
 interface GameSidebarProps {
@@ -18,6 +21,9 @@ interface GameSidebarProps {
   stationName?: string;
   stationLines?: string;
   isRoundActive: boolean;
+  /** Round has ended and the map is showing everyone's guesses */
+  showRoundResults: boolean;
+  isFinalRound: boolean;
 }
 
 /**
@@ -70,7 +76,9 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
   currentRound,
   stationName,
   stationLines,
-  isRoundActive
+  isRoundActive,
+  showRoundResults,
+  isFinalRound
 }) => {
   const stationLinesArray = useMemo(() => {
     if (!stationLines) return [];
@@ -160,6 +168,19 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
                     </div>
                   </div>
 
+                  {/* Round Result */}
+                  {showRoundResults && (
+                    <div className="text-xs">
+                      {player.roundResult ? (
+                        <span className="text-blue-400 font-semibold">
+                          +{player.roundResult.points} · {formatDistance(player.roundResult.distance)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">No guess</span>
+                      )}
+                    </div>
+                  )}
+
                   {/* Guess Status */}
                   {isRoundActive && (
                     <div className="flex items-center gap-2 text-xs">
@@ -191,6 +212,15 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
             </div>
             <div className="text-xs opacity-75 mt-1">
               Click on the map to place your guess
+            </div>
+          </div>
+        )}
+
+        {showRoundResults && (
+          <div className="bg-white/10 rounded-lg p-4 text-center">
+            <div className="text-sm opacity-75 mb-1">Round {currentRound} Results</div>
+            <div className="text-xs opacity-75 mt-1">
+              {isFinalRound ? 'Final results coming up...' : 'Next round starting soon...'}
             </div>
           </div>
         )}
