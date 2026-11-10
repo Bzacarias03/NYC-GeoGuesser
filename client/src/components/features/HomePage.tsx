@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LocationOn } from '@mui/icons-material';
 import { ERROR_MESSAGES } from '../../constants';
 import { useLobbyStore } from '../../stores/lobbyStore';
 import staticMap from '../../assets/static_map.webp';
+import { loadLobbySession } from '../../utils';
 
 interface FormData {
   username: string;
@@ -35,6 +36,15 @@ const ErrorDisplay: React.FC<{ error: string | null; onDismiss: () => void }> = 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { createLobby, joinLobby } = useLobbyStore();
+
+  // Coming home (e.g. the back button mid-game) gives up any lobby seat,
+  // otherwise the server rejects creating or joining another lobby
+  useEffect(() => {
+    const { currentLobby, leaveLobby } = useLobbyStore.getState();
+    if (currentLobby || loadLobbySession()) {
+      leaveLobby();
+    }
+  }, []);
   
   const [formData, setFormData] = useState<FormData>({
     username: '',

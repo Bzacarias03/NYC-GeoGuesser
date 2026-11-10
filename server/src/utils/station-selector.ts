@@ -14,7 +14,6 @@ export function selectRandomStation(
 ): Station | null {
   // Filter out used stations
   const availableStations = stations.filter(station => {
-    // Use station_name as unique identifier
     const stationId = getStationId(station);
     return !usedStationIds.has(stationId);
   });
@@ -31,13 +30,13 @@ export function selectRandomStation(
 
 /**
  * Get unique identifier for a station
- * Uses station_name as the ID since JSON doesn't have explicit IDs
+ * Uses the MTA Complex ID, since names repeat across lines (e.g. "86 St")
  * 
  * @param station Station object
  * @returns Unique station identifier
  */
 export function getStationId(station: Station): string {
-  return station.station_name;
+  return station.id;
 }
 
 /**

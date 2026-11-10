@@ -18,6 +18,8 @@ import type {
   ServerLobby,
 } from '../types/socket-events';
 import { GAME_CONFIG } from '../constants';
+import { socketService } from '../services/socketService';
+import { useLobbyStore } from '../stores/lobbyStore';
 
 
 interface GameLogicState {
@@ -72,6 +74,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
   const [state, setState] = useState<GameLogicState>(initialState);
   const timerRef = useRef<RoundTimer | null>(null);
   const countdownTimerRef = useRef<RoundTimer | null>(null);
+  const returnToLobbyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
   // Handle countdown start
@@ -83,9 +86,14 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
     if (countdownTimerRef.current) {
       countdownTimerRef.current.stop();
     }
+    // A rematch may start while this player is still on the final results screen
+    if (returnToLobbyRef.current) {
+      clearTimeout(returnToLobbyRef.current);
+      returnToLobbyRef.current = null;
+    }
     
     setState(prev => ({
-      ...prev,
+      ...(prev.gameResults ? initialState : prev),
       isCountdown: true,
       countdownTime: data.countdown,
       currentStation: data.station,
@@ -139,7 +147,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       isRoundActive: true,
       timeRemaining: data.timer,
       currentStation: data.station,
-      currentRound: prev.currentRound + 1,
+      currentRound: data.round,
       guesses: [],
       roundResults: null,
     }));
@@ -216,7 +224,8 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
     }));
     
     // Navigate to lobby after showing results
-    setTimeout(() => {
+    returnToLobbyRef.current = setTimeout(() => {
+      returnToLobbyRef.current = null;
       navigate('/lobby');
     }, 10000);
   }, [navigate]);
@@ -285,6 +294,12 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
     // Subscribe to lobby updates to get real-time guesses during active rounds
     const lobbyUpdateKey = syncLobbyState(handleLobbyUpdate);
 
+    // The first countdown event can arrive before this page finishes loading,
+    // so ask for the running countdown/round. (After a refresh, the rejoin sends it.)
+    if (socketService.isConnected() && useLobbyStore.getState().currentLobby) {
+      socketService.requestGameState();
+    }
+
     // Cleanup subscriptions on unmount
     return () => {
       subscriptionKeys.forEach(key => realtimeManager.unsubscribe(key));
@@ -310,6 +325,9 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       }
       if (countdownTimerRef.current) {
         countdownTimerRef.current.stop();
+      }
+      if (returnToLobbyRef.current) {
+        clearTimeout(returnToLobbyRef.current);
       }
     };
   }, []);

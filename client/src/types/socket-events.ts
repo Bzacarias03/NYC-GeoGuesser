@@ -10,6 +10,8 @@
  * Station base type (matching server Station type)
  */
 export interface Station {
+  /** MTA Complex ID (unique per station complex) */
+  id: string;
   /** Station display name */
   station_name: string;
   /** Comma-separated list of train lines serving this station */
@@ -20,6 +22,8 @@ export interface Station {
   longitude: number;
   /** Borough where station is located */
   borough: string;
+  /** Every platform in the complex; guesses are scored against the nearest */
+  coordinates: Array<{ latitude: number; longitude: number }>;
 }
 
 /**
@@ -112,12 +116,18 @@ export interface LeaveLobbyEvent {
   // No payload
 }
 
+export interface RejoinLobbyEvent {
+  sessionToken: string;
+}
+
 /**
  * Server to Client Events
  */
 export interface LobbyJoinedEvent {
   lobby: ServerLobby;
   player: ServerPlayer;
+  /** Secret for reclaiming this seat after a refresh or dropped connection */
+  sessionToken: string;
 }
 
 export interface LobbyUpdateEvent {
@@ -132,6 +142,7 @@ export interface CountdownStartEvent {
 export interface RoundStartEvent {
   station: StationWithTrains;
   timer: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundEndEvent {
@@ -157,6 +168,8 @@ export const CLIENT_EVENTS = {
   START_GAME: 'startGame',
   MAKE_GUESS: 'makeGuess',
   LEAVE_LOBBY: 'leaveLobby',
+  REJOIN_LOBBY: 'rejoinLobby',
+  REQUEST_GAME_STATE: 'requestGameState',
 } as const;
 
 export const SERVER_EVENTS = {

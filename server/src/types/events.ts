@@ -29,6 +29,10 @@ export interface LeaveLobbyEvent {
   // No payload
 }
 
+export interface RejoinLobbyEvent {
+  sessionToken: string;
+}
+
 /**
  * Server to Client Events
  */
@@ -36,6 +40,8 @@ export interface LeaveLobbyEvent {
 export interface LobbyJoinedEvent {
   lobby: Lobby;
   player: Player;
+  /** Secret for reclaiming this seat after a refresh or dropped connection */
+  sessionToken: string;
 }
 
 export interface LobbyUpdateEvent {
@@ -50,6 +56,7 @@ export interface CountdownStartEvent {
 export interface RoundStartEvent {
   station: StationWithTrains;
   timer: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundEndEvent {
@@ -75,6 +82,8 @@ export const CLIENT_EVENTS = {
   START_GAME: 'startGame',
   MAKE_GUESS: 'makeGuess',
   LEAVE_LOBBY: 'leaveLobby',
+  REJOIN_LOBBY: 'rejoinLobby',
+  REQUEST_GAME_STATE: 'requestGameState',
 } as const;
 
 export const SERVER_EVENTS = {

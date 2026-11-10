@@ -19,7 +19,7 @@ export function loadStations(): Station[] {
     
     // Validate each station has required fields
     stations.forEach((station, index) => {
-      if (!station.station_name || typeof station.latitude !== 'number' || typeof station.longitude !== 'number') {
+      if (!station.id || !station.station_name || typeof station.latitude !== 'number' || typeof station.longitude !== 'number' || !Array.isArray(station.coordinates) || station.coordinates.length === 0) {
         throw new Error(`Invalid station at index ${index}: missing required fields`);
       }
     });

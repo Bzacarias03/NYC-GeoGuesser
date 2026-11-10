@@ -1,3 +1,5 @@
+import { GAME_CONFIG } from '../config/constants';
+
 /**
  * Calculate distance between two coordinates using Haversine formula
  * Returns distance in meters
@@ -32,50 +34,34 @@ export function calculateDistance(
 }
 
 /**
- * Maximum distance for scoring calculation (50km - diagonal of NYC)
- * Beyond this distance, players get 0 points
- */
-const MAX_DISTANCE = 50000; // meters
-
-/**
- * Maximum points per round
- */
-const MAX_POINTS = 5000;
-
-/**
  * Calculate points based on distance from target
- * Formula: points = max(0, 5000 * (1 - distance / 50000))
- * 
+ * Quadratic falloff from BenMusch/transit-guessr:
+ * points = 5000 * (max(0, 20000 - distance) / 20000)^2
+ *
  * @param distanceMeters Distance in meters from the target station
  * @returns Points awarded (0-5000)
  */
 export function calculatePoints(distanceMeters: number): number {
-  // Clamp distance to max distance
-  const normalizedDistance = Math.min(distanceMeters, MAX_DISTANCE);
-  
-  // Calculate points using spec formula
-  const points = MAX_POINTS * (1 - normalizedDistance / MAX_DISTANCE);
-  
-  // Ensure points are between 0 and MAX_POINTS
-  return Math.max(0, Math.round(points));
+  const remaining = Math.max(GAME_CONFIG.ZERO_POINT_DISTANCE_METERS - distanceMeters, 0);
+  return Math.round(GAME_CONFIG.POINTS_MAX * (remaining / GAME_CONFIG.ZERO_POINT_DISTANCE_METERS) ** 2);
 }
 
 /**
- * Calculate points for a guess
+ * Calculate points for a guess against the nearest platform of a station complex
  * @param guessLat Guess latitude
  * @param guessLng Guess longitude
- * @param targetLat Target station latitude
- * @param targetLng Target station longitude
- * @returns Object with distance (meters) and points
+ * @param targets Platform coordinates of the target station
+ * @returns Object with distance to the nearest platform (meters) and points
  */
 export function calculateGuessScore(
   guessLat: number,
   guessLng: number,
-  targetLat: number,
-  targetLng: number
+  targets: Array<{ latitude: number; longitude: number }>
 ): { distance: number; points: number } {
-  const distance = calculateDistance(guessLat, guessLng, targetLat, targetLng);
+  const distance = Math.min(
+    ...targets.map(target => calculateDistance(guessLat, guessLng, target.latitude, target.longitude))
+  );
   const points = calculatePoints(distance);
-  
+
   return { distance, points };
 }

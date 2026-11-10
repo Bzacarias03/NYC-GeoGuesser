@@ -246,9 +246,15 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-green-400">
-                  Connected
-                </span>
+                {player.isReady ? (
+                  <span className="text-xs text-green-400">
+                    Connected
+                  </span>
+                ) : (
+                  <span className="text-xs text-yellow-400">
+                    Reconnecting...
+                  </span>
+                )}
               </div>
             </div>
           ))}
@@ -307,14 +313,14 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
 
 export const LobbyPage: React.FC = () => {
   const navigate = useNavigate();
-  const { currentLobby, isJoining, isCreating, error, clearError } = useLobbyStore();
+  const { currentLobby, isJoining, isCreating, isRejoining, error, clearError } = useLobbyStore();
 
   // Redirect to home if no lobby and not in a loading state
   useEffect(() => {
-    if (!currentLobby && !isJoining && !isCreating && !error) {
+    if (!currentLobby && !isJoining && !isCreating && !isRejoining && !error) {
       navigate('/', { replace: true });
     }
-  }, [currentLobby, isJoining, isCreating, error, navigate]);
+  }, [currentLobby, isJoining, isCreating, isRejoining, error, navigate]);
 
   const handleRetry = useCallback(() => {
     clearError();
@@ -329,7 +335,7 @@ export const LobbyPage: React.FC = () => {
   // Determine what to render based on state
   const renderContent = () => {
     // Show loading state while creating or joining
-    if (isCreating || isJoining) {
+    if (isCreating || isJoining || isRejoining) {
       return <LoadingState />;
     }
 

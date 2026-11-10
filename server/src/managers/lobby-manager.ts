@@ -18,6 +18,9 @@ export class LobbyManager {
   private lobbies: Map<string, Lobby> = new Map(); // Map<lobbyId, Lobby>
   private lobbyCodes: Map<string, string> = new Map(); // Map<code, lobbyId>
   private socketToLobby: Map<string, string> = new Map(); // Map<socketId, lobbyId>
+  private sessionTokens: Map<string, { lobbyId: string; playerId: string }> = new Map(); // Map<token, seat>
+  private playerTokens: Map<string, string> = new Map(); // Map<playerId, token>
+  private disconnectTimers: Map<string, NodeJS.Timeout> = new Map(); // Map<playerId, removal timer>
   private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor() {
@@ -92,6 +95,7 @@ export class LobbyManager {
     this.lobbies.set(lobbyId, lobby);
     this.lobbyCodes.set(code, lobbyId);
     this.socketToLobby.set(socketId, lobbyId);
+    this.issueSessionToken(lobbyId, hostPlayerId);
 
     return lobby;
   }
@@ -164,6 +168,7 @@ export class LobbyManager {
     lobby.players.push(player);
     lobby.lastActiveAt = Date.now();
     this.socketToLobby.set(socketId, lobbyId);
+    this.issueSessionToken(lobbyId, playerId);
 
     return lobby;
   }
@@ -202,6 +207,7 @@ export class LobbyManager {
     lobby.players.splice(playerIndex, 1);
     lobby.lastActiveAt = Date.now();
     this.socketToLobby.delete(socketId);
+    this.revokeSession(player.id);
 
     // If host left, migrate host to first remaining player
     if (wasHost && lobby.players.length > 0) {
@@ -267,25 +273,86 @@ export class LobbyManager {
   }
 
   /**
-   * Mark player as disconnected
+   * Mark player as disconnected and hold their seat for RECONNECT_GRACE_MS.
+   * If they haven't rejoined by then they are removed from the lobby.
    * @param socketId Socket ID
+   * @param onRemoved Called after removal with the updated lobby (null if it was dissolved)
+   * @returns Updated lobby or null if the socket wasn't in one
    */
-  markPlayerDisconnected(socketId: string): void {
+  markPlayerDisconnected(
+    socketId: string,
+    onRemoved: (lobbyId: string, lobby: Lobby | null) => void
+  ): Lobby | null {
     const lobbyId = this.socketToLobby.get(socketId);
     if (!lobbyId) {
-      return;
+      return null;
     }
 
     const lobby = this.lobbies.get(lobbyId);
     if (!lobby) {
-      return;
+      return null;
     }
 
     const player = lobby.players.find(p => p.socketId === socketId);
-    if (player) {
-      player.connected = false;
-      lobby.lastActiveAt = Date.now();
+    if (!player) {
+      return null;
     }
+
+    player.connected = false;
+    lobby.lastActiveAt = Date.now();
+
+    this.clearDisconnectTimer(player.id);
+    this.disconnectTimers.set(player.id, setTimeout(() => {
+      this.disconnectTimers.delete(player.id);
+      // Only remove if they haven't reconnected on a new socket
+      if (player.connected || player.socketId !== socketId) {
+        return;
+      }
+      onRemoved(lobbyId, this.leaveLobby(socketId));
+    }, LOBBY_CONFIG.RECONNECT_GRACE_MS));
+
+    return lobby;
+  }
+
+  /**
+   * Reclaim a seat after a refresh or dropped connection
+   * @param sessionToken Token issued when the player first joined
+   * @param socketId New socket ID
+   * @returns Lobby and the rejoined player
+   */
+  rejoinLobby(sessionToken: string, socketId: string): { lobby: Lobby; player: Player } {
+    const seat = this.sessionTokens.get(sessionToken);
+    const lobby = seat ? this.lobbies.get(seat.lobbyId) : undefined;
+    const player = lobby?.players.find(p => p.id === seat?.playerId);
+    if (!seat || !lobby || !player) {
+      throw new Error('Your session has expired');
+    }
+
+    const currentLobbyId = this.socketToLobby.get(socketId);
+    if (currentLobbyId && player.socketId !== socketId) {
+      throw new Error('Socket is already in a lobby');
+    }
+
+    this.clearDisconnectTimer(player.id);
+    this.socketToLobby.delete(player.socketId);
+    this.socketToLobby.set(socketId, lobby.id);
+    player.socketId = socketId;
+    player.connected = true;
+    lobby.lastActiveAt = Date.now();
+
+    return { lobby, player };
+  }
+
+  /**
+   * Get the session token for a player (sent only to that player)
+   * @param playerId Player ID
+   */
+  getSessionToken(playerId: string): string {
+    const token = this.playerTokens.get(playerId);
+    if (!token) {
+      throw new Error('No session for player');
+    }
+    return token;
   }
 
   /**
@@ -340,9 +407,10 @@ export class LobbyManager {
       return;
     }
 
-    // Remove all socket mappings
+    // Remove all socket mappings and sessions
     lobby.players.forEach(player => {
       this.socketToLobby.delete(player.socketId);
+      this.revokeSession(player.id);
     });
 
     // Remove lobby code mapping
@@ -350,6 +418,29 @@ export class LobbyManager {
 
     // Remove lobby
     this.lobbies.delete(lobbyId);
+  }
+
+  private issueSessionToken(lobbyId: string, playerId: string): void {
+    const token = randomUUID();
+    this.sessionTokens.set(token, { lobbyId, playerId });
+    this.playerTokens.set(playerId, token);
+  }
+
+  private revokeSession(playerId: string): void {
+    const token = this.playerTokens.get(playerId);
+    if (token) {
+      this.sessionTokens.delete(token);
+      this.playerTokens.delete(playerId);
+    }
+    this.clearDisconnectTimer(playerId);
+  }
+
+  private clearDisconnectTimer(playerId: string): void {
+    const timer = this.disconnectTimers.get(playerId);
+    if (timer) {
+      clearTimeout(timer);
+      this.disconnectTimers.delete(playerId);
+    }
   }
 
   /**
@@ -390,6 +481,8 @@ export class LobbyManager {
       clearInterval(this.cleanupInterval);
       this.cleanupInterval = null;
     }
+    this.disconnectTimers.forEach(timer => clearTimeout(timer));
+    this.disconnectTimers.clear();
   }
 
   /**

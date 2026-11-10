@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { GAME_CONFIG, SCORING_CONFIG, STORAGE_KEYS, MAP_CONFIG } from '../constants';
+import { STORAGE_KEYS, MAP_CONFIG } from '../constants';
 import type { Coordinates } from '../types';
 
 // Distance calculation using Haversine formula
@@ -17,26 +17,6 @@ export const calculateDistance = (coord1: Coordinates, coord2: Coordinates): num
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
-};
-
-// Calculate points based on distance (closer = more points)
-export const calculatePoints = (distance: number): number => {
-  const { PERFECT_DISTANCE, ZERO_POINTS_DISTANCE, DISTANCE_MULTIPLIER } = SCORING_CONFIG;
-  const { POINTS_MAX, POINTS_MIN } = GAME_CONFIG;
-
-  if (distance <= PERFECT_DISTANCE) {
-    return POINTS_MAX;
-  }
-
-  if (distance >= ZERO_POINTS_DISTANCE) {
-    return POINTS_MIN;
-  }
-
-  // Exponential decay scoring
-  const normalizedDistance = distance / ZERO_POINTS_DISTANCE;
-  const score = POINTS_MAX * Math.pow(1 - normalizedDistance, DISTANCE_MULTIPLIER);
-
-  return Math.max(POINTS_MIN, Math.round(score));
 };
 
 // Generate unique ID
@@ -108,6 +88,31 @@ export const loadPlayerData = (): { id: string; name: string } | null => {
 export const clearPlayerData = (): void => {
   removeFromStorage(STORAGE_KEYS.PLAYER_ID);
   removeFromStorage(STORAGE_KEYS.PLAYER_NAME);
+};
+
+// Lobby session (per tab, survives refresh) used to rejoin after a disconnect
+export const saveLobbySession = (sessionToken: string): void => {
+  try {
+    sessionStorage.setItem(STORAGE_KEYS.SESSION, sessionToken);
+  } catch {
+    // Storage unavailable - rejoining after a refresh won't work
+  }
+};
+
+export const loadLobbySession = (): string | null => {
+  try {
+    return sessionStorage.getItem(STORAGE_KEYS.SESSION);
+  } catch {
+    return null;
+  }
+};
+
+export const clearLobbySession = (): void => {
+  try {
+    sessionStorage.removeItem(STORAGE_KEYS.SESSION);
+  } catch {
+    // Nothing to clear
+  }
 };
 
 // Validation helpers

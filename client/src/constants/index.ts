@@ -27,13 +27,6 @@ export const MAP_CONFIG = {
 } as const;
 
 // Scoring Configuration
-export const SCORING_CONFIG = {
-  // Distance in meters for scoring calculation
-  PERFECT_DISTANCE: 100, // meters - full points
-  ZERO_POINTS_DISTANCE: 5000, // meters - zero points
-  DISTANCE_MULTIPLIER: 0.8, // scoring curve multiplier
-} as const;
-
 // UI Configuration
 export const UI_CONFIG = {
   ANIMATION_DURATION: 300, // milliseconds
@@ -121,4 +114,5 @@ export const STORAGE_KEYS = {
   PLAYER_ID: 'nyc-guesser-player-id',
   GAME_SETTINGS: 'nyc-guesser-settings',
   RECENT_LOBBIES: 'nyc-guesser-recent-lobbies',
+  SESSION: 'nyc-guesser-session',
 } as const; 

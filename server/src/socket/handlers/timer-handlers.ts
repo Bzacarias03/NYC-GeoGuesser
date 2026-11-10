@@ -1,6 +1,7 @@
 import { Socket, Server } from 'socket.io';
 import type { LobbyManager, GameManager } from '../../managers';
 import type { Station, StationWithTrains } from '../../types/station';
+import type { Lobby } from '../../types/lobby';
 import { SERVER_EVENTS } from '../../types/events';
 import { GAME_CONFIG, TIMER_CONFIG } from '../../config/constants';
 import { parseStationTrains } from '../../utils/station-filter';
@@ -104,6 +105,7 @@ export function startRoundTimer(
   io.to(lobbyId).emit(SERVER_EVENTS.ROUND_START, {
     station,
     timer: GAME_CONFIG.ROUND_DURATION,
+    round: updatedLobby.currentRound,
   });
 
   let timeRemaining = GAME_CONFIG.ROUND_DURATION;
@@ -182,6 +184,9 @@ function endRound(
           winner: updatedLobby.gameResults.winner,
         });
       }
+
+      // Lobby is back in 'waiting' - let clients know a rematch can start
+      io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: updatedLobby });
     } else {
       // Start next round
       lobbyManager.updateLobby(lobbyId, updatedLobby);
@@ -194,6 +199,26 @@ function endRound(
       }
     }
   }, 3000); // 3 second delay between rounds
+}
+
+/**
+ * Send a (re)joining player the countdown or round that is currently running,
+ * so they land mid-game with the right station, round and time remaining
+ */
+export function emitCurrentGameState(socket: Socket, lobby: Lobby): void {
+  if (!lobby.currentStation || lobby.roundStartTime === null) {
+    return;
+  }
+
+  const elapsedSeconds = (Date.now() - lobby.roundStartTime) / 1000;
+  const remaining = Math.max(Math.ceil(lobby.roundTimer - elapsedSeconds), 0);
+  const station = parseStationTrains(lobby.currentStation);
+
+  if (lobby.gameState === 'countdown') {
+    socket.emit(SERVER_EVENTS.COUNTDOWN_START, { station, countdown: remaining });
+  } else if (lobby.gameState === 'active') {
+    socket.emit(SERVER_EVENTS.ROUND_START, { station, timer: remaining, round: lobby.currentRound });
+  }
 }
 
 /**

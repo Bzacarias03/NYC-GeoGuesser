@@ -39,7 +39,9 @@ export class GameManager {
       throw new Error(`Need at least ${GAME_CONFIG.MIN_PLAYERS_TO_START} players to start`);
     }
 
-    // Initialize game state
+    // Initialize game state (lobbies are reused for rematches)
+    lobby.currentRound = 0;
+    lobby.gameResults = null;
     this.activeGames.set(lobby.id, 'countdown');
     this.usedStations.set(lobby.id, new Set());
     this.playerGuesses.set(lobby.id, new Map());
@@ -174,12 +176,7 @@ export class GameManager {
     // Players can update their guess multiple times during a round
 
     // Calculate score
-    const score = calculateGuessScore(
-      lat,
-      lng,
-      lobby.currentStation.latitude,
-      lobby.currentStation.longitude
-    );
+    const score = calculateGuessScore(lat, lng, lobby.currentStation.coordinates);
 
     // Create or update guess
     const guess: PlayerGuess = {
@@ -273,6 +270,7 @@ export class GameManager {
 
   /**
    * End game and calculate final results
+   * The lobby returns to 'waiting' so the same group can play again
    * @param lobby Lobby
    * @returns Updated lobby
    */
@@ -295,7 +293,8 @@ export class GameManager {
     const winner = finalScores[0]!;
 
     // Update lobby
-    lobby.gameState = 'finished';
+    lobby.gameState = 'waiting';
+    lobby.currentRound = 0;
     lobby.gameResults = {
       finalScores,
       winner,

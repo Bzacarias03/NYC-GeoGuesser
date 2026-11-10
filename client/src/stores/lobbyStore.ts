@@ -3,11 +3,12 @@ import {
   createLobby,
   joinLobby,
   leaveLobby,
+  rejoinLobby,
 } from '../services/lobbyService'
 import { startGame as startGameService } from '../services/gameService'
 import { syncLobbyState, realtimeManager } from '../services/realtimeService'
 import { socketService } from '../services/socketService'
-import { savePlayerData } from '../utils'
+import { savePlayerData, saveLobbySession, loadLobbySession, clearLobbySession } from '../utils'
 import type { ServerLobby, ServerPlayer } from '../types/socket-events'
 
 export interface Player {
@@ -41,6 +42,7 @@ interface LobbyState {
   currentPlayerId: string | null
   isJoining: boolean
   isCreating: boolean
+  isRejoining: boolean
   error: string | null
   isConnected: boolean // Socket.io connection state
   
@@ -50,6 +52,7 @@ interface LobbyState {
   createLobby: (playerName: string, isPrivate: boolean) => Promise<void>
   joinLobby: (code: string, playerName: string) => Promise<void>
   leaveLobby: () => Promise<void>
+  rejoinLobby: () => Promise<void>
   startGame: () => Promise<void>
   generateShareLink: () => string
   clearError: () => void
@@ -96,234 +99,202 @@ function convertServerLobbyToClient(serverLobby: ServerLobby): GameLobby {
   }
 }
 
-export const useLobbyStore = create<LobbyState>((set, get) => ({
-  currentLobby: null,
-  joinCode: '',
-  playerName: '',
-  currentPlayerId: null,
-  isJoining: false,
-  isCreating: false,
-  error: null,
-  isConnected: false,
-
-  setJoinCode: (code: string) => set({ joinCode: code.toUpperCase() }),
-  
-  setPlayerName: (name: string) => set({ playerName: name }),
-  
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createLobby: async (playerName: string, _isPrivate: boolean) => {
-    set({ isCreating: true, error: null })
-    
-    try {
-      // Ensure socket is connected
-      if (!socketService.isConnected()) {
-        socketService.connect()
-        // Wait for connection
-        await new Promise<void>((resolve) => {
-          const unsubscribe = socketService.on('connected', () => {
-            unsubscribe()
-            resolve()
-          })
-          // Timeout after 5 seconds
-          setTimeout(() => {
-            unsubscribe()
-            resolve()
-          }, 5000)
-        })
-      }
-      
-      const { lobby: serverLobby, player: serverPlayer } = await createLobby(playerName)
-      
-      const newLobby: GameLobby = convertServerLobbyToClient(serverLobby)
-      
-      // Save player data to localStorage
-      savePlayerData(serverPlayer.id, serverPlayer.username);
-      
-      set({ 
-        currentLobby: newLobby, 
-        currentPlayerId: serverPlayer.id,
-        isCreating: false,
-        playerName: '',
-        isConnected: socketService.isConnected()
-      })
-      
-      // Set up real-time lobby updates
-      syncLobbyState((serverLobby: ServerLobby) => {
-        const { currentLobby } = get()
-        if (currentLobby && serverLobby.id === currentLobby.id) {
-          const updatedLobby = convertServerLobbyToClient(serverLobby)
-          set({ currentLobby: updatedLobby })
-        }
-      })
-      
-      // Store subscription key for cleanup (we'll handle this in leaveLobby)
-      // For now, we'll let it persist until leaveLobby is called
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to create lobby',
-        isCreating: false 
-      })
-    }
-  },
-  
-  joinLobby: async (code: string, playerName: string) => {
-    set({ isJoining: true, error: null })
-    
-    try {
-      // Ensure socket is connected
-      if (!socketService.isConnected()) {
-        socketService.connect()
-        // Wait for connection
-        await new Promise<void>((resolve) => {
-          const unsubscribe = socketService.on('connected', () => {
-            unsubscribe()
-            resolve()
-          })
-          // Timeout after 5 seconds
-          setTimeout(() => {
-            unsubscribe()
-            resolve()
-          }, 5000)
-        })
-      }
-      
-      // Set up real-time lobby updates BEFORE joining
-      // The server will emit lobbyUpdate to all players when someone joins
-      let lobbyReceived = false
-      let subscriptionKey: string | null = null
-      
-      subscriptionKey = syncLobbyState((serverLobby: ServerLobby) => {
-        if (serverLobby.code.toUpperCase() === code.toUpperCase()) {
-          if (!lobbyReceived) {
-            lobbyReceived = true
-            const joinedLobby = convertServerLobbyToClient(serverLobby)
-            
-            // Find the current player in the lobby (by username since we just joined)
-            const currentPlayer = serverLobby.players.find(p => p.username === playerName)
-            
-            if (currentPlayer) {
-              // Save player data to localStorage
-              savePlayerData(currentPlayer.id, currentPlayer.username)
-              
-              set({ 
-                currentLobby: joinedLobby, 
-                currentPlayerId: currentPlayer.id,
-                isJoining: false,
-                joinCode: '',
-                playerName: '',
-                isConnected: socketService.isConnected()
-              })
-            }
-          } else {
-            // Update lobby state for subsequent updates
-            const updatedLobby = convertServerLobbyToClient(serverLobby)
-            set({ currentLobby: updatedLobby })
-          }
-        }
-      })
-      
-      // Join the lobby (server handles finding by code)
-      // This will trigger lobbyJoined event, and server will also emit lobbyUpdate
-      await joinLobby(code, playerName)
-      
-      // Wait a moment for lobbyUpdate event to arrive
-      // If it doesn't arrive, we'll use the player data we have
-      await new Promise<void>((resolve) => {
-        const checkInterval = setInterval(() => {
-          if (lobbyReceived) {
-            clearInterval(checkInterval)
-            resolve()
-          }
-        }, 100)
-        
-        setTimeout(() => {
-          clearInterval(checkInterval)
-          resolve()
-        }, 2000)
-      })
-      
-      // If we still haven't received the lobby, create a minimal one from the player data
-      if (!lobbyReceived && subscriptionKey) {
-        // The lobbyUpdate should have arrived, but if not, we'll wait a bit more
-        // or the component can handle the missing lobby state
-        // Don't fail - the real-time subscription will eventually receive it
-      }
-    } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : 'Failed to join lobby',
-        isJoining: false 
-      })
-    }
-  },
-  
-  leaveLobby: async () => {
-    try {
-      await leaveLobby()
-    } catch (error) {
-      console.error('Error leaving lobby', error)
-      // Error leaving lobby - silently fail
-    }
-    
-    // Clean up all real-time subscriptions
-    realtimeManager.unsubscribeAll()
-    
-    set({ 
-      currentLobby: null,
-      currentPlayerId: null,
-      joinCode: '',
-      playerName: '',
-      error: null
+/**
+ * Wait for the socket to connect (gives up after 5 seconds)
+ */
+async function ensureConnected(): Promise<void> {
+  if (socketService.isConnected()) return
+  socketService.connect()
+  await new Promise<void>((resolve) => {
+    const unsubscribe = socketService.on('connected', () => {
+      unsubscribe()
+      clearTimeout(timeoutId)
+      resolve()
     })
-  },
-  
-  startGame: async () => {
-    const { currentLobby } = get()
-    if (!currentLobby) {
-      set({ error: 'No lobby to start game' })
-      return
+    const timeoutId = setTimeout(() => {
+      unsubscribe()
+      resolve()
+    }, 5000)
+  })
+}
+
+// Single store-level lobby subscription, replaced on every create/join/rejoin
+let lobbySubscriptionKey: string | null = null
+let rejoinInFlight: Promise<void> | null = null
+
+export const useLobbyStore = create<LobbyState>((set, get) => {
+  const enterLobby = (serverLobby: ServerLobby, serverPlayer: ServerPlayer, sessionToken: string) => {
+    savePlayerData(serverPlayer.id, serverPlayer.username)
+    saveLobbySession(sessionToken)
+
+    set({
+      currentLobby: convertServerLobbyToClient(serverLobby),
+      currentPlayerId: serverPlayer.id,
+      isConnected: socketService.isConnected(),
+    })
+
+    if (lobbySubscriptionKey) {
+      realtimeManager.unsubscribe(lobbySubscriptionKey)
     }
+    lobbySubscriptionKey = syncLobbyState((updatedLobby: ServerLobby) => {
+      get().updateLobbyFromServer(updatedLobby)
+    })
+  }
+
+  return {
+    currentLobby: null,
+    joinCode: '',
+    playerName: '',
+    currentPlayerId: null,
+    isJoining: false,
+    isCreating: false,
+    // A saved session means we're about to rejoin (pages wait instead of redirecting home)
+    isRejoining: loadLobbySession() !== null,
+    error: null,
+    isConnected: false,
+
+    setJoinCode: (code: string) => set({ joinCode: code.toUpperCase() }),
     
-    // Check if current player is host
-    if (!get().isCurrentPlayerHost()) {
-      set({ error: 'Only the host can start the game' })
-      return
-    }
+    setPlayerName: (name: string) => set({ playerName: name }),
     
-    try {
-      await startGameService()
-      // Game start will trigger countdownStart event, which will be handled by game components
-    } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to start game' })
-    }
-  },
-  
-  generateShareLink: () => {
-    const { currentLobby } = get()
-    return currentLobby?.shareLink || ''
-  },
-  
-  clearError: () => set({ error: null }),
-  
-  updateLobbyState: (lobby: GameLobby) => {
-    set({ currentLobby: lobby });
-  },
-  getCurrentPlayer: () => {
-    const { currentLobby, currentPlayerId } = get()
-    if (!currentLobby || !currentPlayerId) return null
-    return currentLobby.players.find(p => p.id === currentPlayerId) || null
-  },
-  isCurrentPlayerHost: () => {
-    const { currentLobby, currentPlayerId } = get()
-    if (!currentLobby || !currentPlayerId) return false
-    const currentPlayer = currentLobby.players.find(p => p.id === currentPlayerId)
-    return currentPlayer?.isHost || false
-  },
-  
-  updateLobbyFromServer: (serverLobby: ServerLobby) => {
-    const { currentLobby } = get()
-    if (currentLobby && serverLobby.id === currentLobby.id) {
-      const updatedLobby = convertServerLobbyToClient(serverLobby)
-      set({ currentLobby: updatedLobby })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createLobby: async (playerName: string, _isPrivate: boolean) => {
+      set({ isCreating: true, error: null })
+      
+      try {
+        await ensureConnected()
+        
+        const { lobby: serverLobby, player: serverPlayer, sessionToken } = await createLobby(playerName)
+        enterLobby(serverLobby, serverPlayer, sessionToken)
+        set({ isCreating: false, playerName: '' })
+      } catch (error) {
+        set({ 
+          error: error instanceof Error ? error.message : 'Failed to create lobby',
+          isCreating: false 
+        })
+      }
+    },
+    
+    joinLobby: async (code: string, playerName: string) => {
+      set({ isJoining: true, error: null })
+      
+      try {
+        await ensureConnected()
+        
+        const { lobby: serverLobby, player: serverPlayer, sessionToken } = await joinLobby(code, playerName)
+        enterLobby(serverLobby, serverPlayer, sessionToken)
+        set({ isJoining: false, joinCode: '', playerName: '' })
+      } catch (error) {
+        set({ 
+          error: error instanceof Error ? error.message : 'Failed to join lobby',
+          isJoining: false 
+        })
+      }
+    },
+    
+    leaveLobby: async () => {
+      try {
+        await leaveLobby()
+      } catch (error) {
+        console.error('Error leaving lobby', error)
+        // Error leaving lobby - silently fail
+      }
+      
+      // Clean up all real-time subscriptions
+      realtimeManager.unsubscribeAll()
+      lobbySubscriptionKey = null
+      clearLobbySession()
+      
+      set({ 
+        isRejoining: false,
+        currentLobby: null,
+        currentPlayerId: null,
+        joinCode: '',
+        playerName: '',
+        error: null
+      })
+    },
+    
+    rejoinLobby: async () => {
+      if (rejoinInFlight) return rejoinInFlight
+
+      const sessionToken = loadLobbySession()
+      if (!sessionToken) {
+        set({ isRejoining: false })
+        return
+      }
+
+      set({ isRejoining: true })
+      rejoinInFlight = (async () => {
+        try {
+          await ensureConnected()
+          const { lobby: serverLobby, player: serverPlayer } = await rejoinLobby(sessionToken)
+          enterLobby(serverLobby, serverPlayer, sessionToken)
+        } catch (error) {
+          // Seat is gone (grace period expired or server restarted)
+          clearLobbySession()
+          set({
+            currentLobby: null,
+            currentPlayerId: null,
+            error: error instanceof Error ? error.message : 'Failed to rejoin lobby',
+          })
+        } finally {
+          rejoinInFlight = null
+          set({ isRejoining: false })
+        }
+      })()
+      return rejoinInFlight
+    },
+    
+    startGame: async () => {
+      const { currentLobby } = get()
+      if (!currentLobby) {
+        set({ error: 'No lobby to start game' })
+        return
+      }
+      
+      // Check if current player is host
+      if (!get().isCurrentPlayerHost()) {
+        set({ error: 'Only the host can start the game' })
+        return
+      }
+      
+      try {
+        await startGameService()
+        // Game start will trigger countdownStart event, which will be handled by game components
+      } catch (error) {
+        set({ error: error instanceof Error ? error.message : 'Failed to start game' })
+      }
+    },
+    
+    generateShareLink: () => {
+      const { currentLobby } = get()
+      return currentLobby?.shareLink || ''
+    },
+    
+    clearError: () => set({ error: null }),
+    
+    updateLobbyState: (lobby: GameLobby) => {
+      set({ currentLobby: lobby });
+    },
+    getCurrentPlayer: () => {
+      const { currentLobby, currentPlayerId } = get()
+      if (!currentLobby || !currentPlayerId) return null
+      return currentLobby.players.find(p => p.id === currentPlayerId) || null
+    },
+    isCurrentPlayerHost: () => {
+      const { currentLobby, currentPlayerId } = get()
+      if (!currentLobby || !currentPlayerId) return false
+      const currentPlayer = currentLobby.players.find(p => p.id === currentPlayerId)
+      return currentPlayer?.isHost || false
+    },
+    
+    updateLobbyFromServer: (serverLobby: ServerLobby) => {
+      const { currentLobby } = get()
+      if (currentLobby && serverLobby.id === currentLobby.id) {
+        const updatedLobby = convertServerLobbyToClient(serverLobby)
+        set({ currentLobby: updatedLobby })
+      }
     }
   }
-})) 
+}) 

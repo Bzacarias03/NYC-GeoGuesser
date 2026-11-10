@@ -5,6 +5,7 @@ import type {
   StartGameEvent,
   MakeGuessEvent,
   LeaveLobbyEvent,
+  RejoinLobbyEvent,
   LobbyJoinedEvent,
   LobbyUpdateEvent,
   CountdownStartEvent,
@@ -273,6 +274,20 @@ class SocketService {
    */
   leaveLobby(): void {
     this.emit(CLIENT_EVENTS.LEAVE_LOBBY, {} as LeaveLobbyEvent);
+  }
+
+  /**
+   * Reclaim a seat after a refresh or dropped connection
+   */
+  rejoinLobby(sessionToken: string): void {
+    this.emit(CLIENT_EVENTS.REJOIN_LOBBY, { sessionToken } as RejoinLobbyEvent);
+  }
+
+  /**
+   * Ask the server to resend the running countdown/round
+   */
+  requestGameState(): void {
+    this.emit(CLIENT_EVENTS.REQUEST_GAME_STATE);
   }
 }
 
