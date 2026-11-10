@@ -77,6 +77,7 @@ async function main() {
     // Start server
     server.listen(env.PORT, () => {
       // Server started successfully
+      console.log(`Server started on port ${env.PORT}`);
     });
 
     // Graceful shutdown
