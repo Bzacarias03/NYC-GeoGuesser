@@ -145,6 +145,7 @@ export interface LobbyUpdateEvent {
 export interface CountdownStartEvent {
   station: PublicStation;
   countdown: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundStartEvent {

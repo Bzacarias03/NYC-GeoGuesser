@@ -188,25 +188,25 @@ export const HomePage: React.FC = () => {
               type="text"
               value={formData.lobbyId}
               onChange={(e) => handleInputChange('lobbyId', e.target.value)}
-              placeholder="Enter lobby ID to join existing game"
+              placeholder="Enter lobby code"
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
               disabled={isLoading.startGame || isLoading.joinGame}
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 mt-10">
+          <div className="flex flex-col sm:flex-row gap-3 mt-10">
             <button
               onClick={handleStartGame}
               disabled={isLoading.startGame || !formData.username.trim() || !!formData.lobbyId.trim()}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors hover:cursor-pointer"
+              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
             >
               {isLoading.startGame ? 'Starting...' : 'Start New Game'}
             </button>
             <button
               onClick={handleJoinGame}
               disabled={isLoading.joinGame || !formData.username.trim() || !formData.lobbyId.trim()}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors hover:cursor-pointer"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
             >
               {isLoading.joinGame ? 'Joining...' : 'Join Game'}
             </button>

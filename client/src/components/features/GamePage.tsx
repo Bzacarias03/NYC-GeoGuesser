@@ -6,13 +6,14 @@ import type { MapMouseEvent, MapRef, ViewState } from 'react-map-gl/maplibre';
 import type { Coordinates } from '../../types';
 import { API_CONFIG, MAP_CONFIG, MAP_LABEL_CLASS, PLAYER_COLORS } from '../../constants';
 import { isWithinNYCBounds, formatDistance } from '../../utils';
-import { edgePosition } from '../../utils/edgePosition';
+import { edgePosition, EDGE_INSET } from '../../utils/edgePosition';
 import { useGameLogic } from '../../hooks';
 import { useLobbyStore } from '../../stores/lobbyStore';
 import { EmojiEvents, ArrowBack } from '@mui/icons-material';
 import staticMap from '../../assets/static_map.webp';
 import { GameSidebar } from '../ui/GameSidebar';
 import { OffscreenGuessIndicator } from '../ui/OffscreenGuessIndicator';
+import { MobileGameCard } from '../ui/MobileGameCard';
 
 /** Width of the area (meters) framed around the station when a round ends */
 const REVEAL_VIEW_METERS = 5000;
@@ -160,6 +161,12 @@ const GamePage: React.FC = () => {
 
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
   const mapRef = useRef<MapRef>(null);
+  // Phone-only card over the top of the map (display:none on wider screens, so 0 height)
+  const mobileCardRef = useRef<HTMLDivElement>(null);
+  const getMobileCardBottom = () => {
+    const card = mobileCardRef.current;
+    return card && card.offsetHeight > 0 ? card.offsetTop + card.offsetHeight : 0;
+  };
 
   // Round over: fly everyone to the station, framing ~5km around it
   useEffect(() => {
@@ -167,9 +174,10 @@ const GamePage: React.FC = () => {
     const { latitude, longitude } = roundResults.station;
     const halfLat = REVEAL_VIEW_METERS / 2 / METERS_PER_DEGREE_LAT;
     const halfLng = halfLat / Math.cos((latitude * Math.PI) / 180);
+    // On phones, center the station in the part of the map below the card
     mapRef.current?.fitBounds(
       [[longitude - halfLng, latitude - halfLat], [longitude + halfLng, latitude + halfLat]],
-      { padding: 20, maxZoom: MAP_CONFIG.MAX_ZOOM, duration: 1500 }
+      { padding: { top: 20 + getMobileCardBottom(), right: 20, bottom: 20, left: 20 }, maxZoom: MAP_CONFIG.MAX_ZOOM, duration: 1500 }
     );
   }, [roundResults]);
 
@@ -223,11 +231,12 @@ const GamePage: React.FC = () => {
     return PLAYER_COLORS[fallbackIndex % PLAYER_COLORS.length];
   }, [currentLobby]);
 
-  // Guess pins: only our own during the round, everyone's once it ends
   // During the reveal, split guesses into ones inside the map view (drawn as pins)
   // and ones outside it (drawn at the map edge). Computed every render because
   // the page re-renders on every map move.
   const map = mapRef.current;
+  const mobileCardBottom = getMobileCardBottom();
+  const edgeInset = mobileCardBottom ? { ...EDGE_INSET, top: mobileCardBottom + 16 } : EDGE_INSET;
   const revealedGuesses = isShowingResults && roundResults && map
     ? roundResults.guesses.map((guess, index) => {
         const onScreen = map.getBounds().contains([guess.lng, guess.lat]);
@@ -235,7 +244,7 @@ const GamePage: React.FC = () => {
         return {
           guess,
           color: getPlayerColorById(guess.playerId, index),
-          edge: onScreen ? null : edgePosition(map.project([guess.lng, guess.lat]), clientWidth, clientHeight),
+          edge: onScreen ? null : edgePosition(map.project([guess.lng, guess.lat]), clientWidth, clientHeight, edgeInset),
         };
       })
     : [];
@@ -319,6 +328,8 @@ const GamePage: React.FC = () => {
     });
   }, [players, guessedPlayerIds, roundResults]);
 
+  const me = playersWithGuessStatus.find(player => player.id === currentPlayerId);
+
   if (error) {
     return (
       <div className="min-h-screen bg-red-50 flex items-center justify-center">
@@ -343,9 +354,9 @@ const GamePage: React.FC = () => {
         style={{ backgroundImage: `url(${staticMap})` }}
       >
         <div className="absolute inset-0 bg-black/75"></div>
-        <div className="relative z-10 min-h-screen flex items-center justify-center p-8">
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-8">
           <div 
-            className="rounded-lg p-8 max-w-md w-full text-center border"
+            className="rounded-lg p-6 sm:p-8 max-w-md w-full text-center border"
             style={{ 
               backgroundColor: '#242424',
               borderColor: 'white',
@@ -385,23 +396,43 @@ const GamePage: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full h-screen" style={{ backgroundColor: '#242424' }}>
-      {/* Sidebar */}
-      <GameSidebar
-        players={playersWithGuessStatus}
-        currentPlayerId={currentPlayerId || null}
-        currentRound={currentRoundNumber}
-        stationName={currentStation?.station_name}
-        stationLines={currentStation?.line}
-        isRoundActive={isRoundActive}
-        showRoundResults={isShowingResults}
-        isFinalRound={currentRoundNumber >= totalRounds}
-      />
+    <div className="flex w-full h-dvh overflow-hidden" style={{ backgroundColor: '#242424' }}>
+      {/* Sidebar (tablet/desktop; phones use the card over the map) */}
+      <div className="hidden md:block h-full">
+        <GameSidebar
+          players={playersWithGuessStatus}
+          currentPlayerId={currentPlayerId || null}
+          currentRound={currentRoundNumber}
+          stationName={currentStation?.station_name}
+          stationLines={currentStation?.line}
+          isRoundActive={isRoundActive}
+          showRoundResults={isShowingResults}
+          isFinalRound={currentRoundNumber >= totalRounds}
+        />
+      </div>
 
       {/* Main Game Area */}
-      <div className="flex-1 relative">
-        {/* Header with Back Button and Timer */}
-        <div className="absolute top-4 left-4 right-4 z-10">
+      <div className="flex-1 min-w-0 relative">
+        {/* Phone: round, timer, station and your own status over the map */}
+        <MobileGameCard
+          cardRef={mobileCardRef}
+          onBack={handleBackClick}
+          currentRound={currentRoundNumber}
+          totalRounds={totalRounds}
+          stationName={currentStation?.station_name}
+          stationLines={currentStation?.line}
+          isCountdown={isCountdown}
+          countdownTime={countdownTime}
+          isRoundActive={isRoundActive}
+          timeRemaining={timeRemaining}
+          myScore={me?.score ?? 0}
+          hasGuessed={hasCurrentPlayerGuessed()}
+          showRoundResults={isShowingResults}
+          myRoundResult={me?.roundResult ?? null}
+        />
+
+        {/* Header with Back Button and Timer (tablet/desktop) */}
+        <div className="hidden md:block absolute top-4 left-4 right-4 z-10">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBackClick}

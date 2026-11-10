@@ -52,11 +52,13 @@ export function startCountdownTimer(
   clearTimer(lobbyId);
 
   let countdown = GAME_CONFIG.COUNTDOWN_DURATION;
+  const round = lobbyManager.getLobby(lobbyId)?.currentRound ?? 0;
 
   // Emit initial countdown
   io.to(lobbyId).emit(SERVER_EVENTS.COUNTDOWN_START, {
     station: toPublicStation(station),
     countdown,
+    round,
   });
 
   // Start countdown interval
@@ -68,6 +70,7 @@ export function startCountdownTimer(
       io.to(lobbyId).emit(SERVER_EVENTS.COUNTDOWN_START, {
         station: toPublicStation(station),
         countdown,
+        round,
       });
     } else {
       // Countdown finished - start active round
@@ -216,7 +219,7 @@ export function emitCurrentGameState(socket: Socket, lobby: Lobby): void {
   const station = toPublicStation(lobby.currentStation);
 
   if (lobby.gameState === 'countdown') {
-    socket.emit(SERVER_EVENTS.COUNTDOWN_START, { station, countdown: remaining });
+    socket.emit(SERVER_EVENTS.COUNTDOWN_START, { station, countdown: remaining, round: lobby.currentRound });
   } else if (lobby.gameState === 'active') {
     socket.emit(SERVER_EVENTS.ROUND_START, { station, timer: remaining, round: lobby.currentRound });
   }

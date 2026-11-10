@@ -82,6 +82,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       ...(prev.gameResults ? initialState : prev),
       isCountdown: true,
       countdownTime: data.countdown,
+      currentRound: data.round,
       currentStation: data.station,
       isRoundActive: false,
       timeRemaining: 0,
