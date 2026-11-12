@@ -51,8 +51,8 @@ export const MobileGameCard: React.FC<MobileGameCardProps> = ({
   return (
     <div
       ref={cardRef}
-      className="md:hidden absolute top-2 left-2 right-2 z-10 rounded-lg border border-white/30 text-white shadow-lg backdrop-blur-sm px-3 py-2"
-      style={{ backgroundColor: 'rgba(36, 36, 36, 0.9)' }}
+      className="md:hidden absolute top-2 left-2 right-2 z-10 rounded-lg border border-white/30 text-white shadow-lg px-3 py-2"
+      style={{ backgroundColor: 'rgba(36, 36, 36, 0.95)' }}
     >
       {/* Back button | station (centered) | timer. Side columns share a width so the station is truly centered */}
       <div className="flex items-center gap-2">

@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { LocationOn } from '@mui/icons-material';
 import { useLobbyStore } from '../../stores/lobbyStore';
-import staticMap from '../../assets/static_map.webp';
+import { PAGE_CARD_CLASS } from '../../constants';
+import { PageShell } from '../layout/PageShell';
 
 // Error display component
 const ErrorDisplay: React.FC<{ error: string | null; onDismiss: () => void }> = ({ 
@@ -75,95 +75,67 @@ export const JoinPage: React.FC = () => {
   const currentError = localError || error;
 
   return (
-    <div 
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative"
-      style={{
-        backgroundImage: `url(${staticMap})`,
-      }}
-    >
-      {/* Dark overlay - needed for text visibility */}
-      <div className="absolute inset-0 bg-black/75"></div>
+    <PageShell>
+      <div className={PAGE_CARD_CLASS}>
+        {/* Error Display */}
+        <ErrorDisplay 
+          error={currentError} 
+          onDismiss={() => {
+            setLocalError(null);
+            clearError();
+          }} 
+        />
 
-      {/* Header with Logo and Title */}
-      <div className="relative z-10 px-8 pt-8 pb-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <LocationOn 
-            style={{ 
-              fontSize: 48,
-              color: '#FF0000'
-            }} 
-          />
-          <h1 style={{color: 'white'}} className="text-3xl font-bold tracking-wide">
-            NYC GeoGuesser
-          </h1>
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-8">
-        {/* Central Card - matching LobbyPage styling */}
-        <div className="bg-[#242424] border border-white rounded-lg p-8 w-full max-w-lg mx-auto">
-
-          {/* Error Display */}
-          <ErrorDisplay 
-            error={currentError} 
-            onDismiss={() => {
-              setLocalError(null);
-              clearError();
-            }} 
-          />
-
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-white text-2xl font-bold mb-2">Join Game</h2>
-            <div className="bg-white/10 rounded-lg p-3">
-              <span className="text-white/80 text-sm">
-                Lobby Code: <span className="font-mono font-bold">{lobbyCode}</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Username Input */}
-          <div className="mb-6">
-            <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-2">
-              Your Name
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Enter your name"
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-              disabled={isJoining}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !isJoining) {
-                  handleJoinLobby();
-                }
-              }}
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleGoHome}
-              disabled={isJoining}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors hover:cursor-pointer"
-            >
-              Back to Home
-            </button>
-            <button
-              onClick={handleJoinLobby}
-              disabled={isJoining || !playerName.trim()}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-medium transition-colors hover:cursor-pointer"
-            >
-              {isJoining ? 'Joining...' : 'Join Lobby'}
-            </button>
+        {/* Header */}
+        <div className="text-center mb-4 sm:mb-6">
+          <h2 className="text-white text-xl sm:text-2xl font-bold mb-2">Join Game</h2>
+          <div className="bg-white/10 rounded-lg p-3">
+            <span className="text-white/80 text-sm">
+              Lobby Code: <span className="font-mono font-bold">{lobbyCode}</span>
+            </span>
           </div>
         </div>
+
+        {/* Username Input */}
+        <div className="mb-4 sm:mb-6">
+          <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-2">
+            Your Name
+          </label>
+          <input
+            id="username"
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            placeholder="Enter your name"
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+            disabled={isJoining}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !isJoining) {
+                handleJoinLobby();
+              }
+            }}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 sm:gap-3">
+          <button
+            onClick={handleGoHome}
+            disabled={isJoining}
+            className="flex-1 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+          >
+            Back to Home
+          </button>
+          <button
+            onClick={handleJoinLobby}
+            disabled={isJoining || !playerName.trim()}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+          >
+            {isJoining ? 'Joining...' : 'Join Lobby'}
+          </button>
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

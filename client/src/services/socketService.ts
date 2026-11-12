@@ -32,7 +32,9 @@ class SocketService {
    * Get Socket.io server URL from environment or default to localhost
    */
   private getSocketUrl(): string {
-    const url = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080';
+    // Unset in dev: connect to the page's own origin and let the Vite proxy
+    // forward /socket.io to the server (works through tunnels like ngrok)
+    const url = import.meta.env.VITE_SOCKET_URL || window.location.origin;
     return url;
   }
 

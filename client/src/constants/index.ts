@@ -27,6 +27,9 @@ export const MAP_CONFIG = {
 } as const;
 
 // Scoring Configuration
+// Card used by the home, join and lobby pages (tighter padding on phones)
+export const PAGE_CARD_CLASS = 'bg-[#242424] border border-white rounded-lg p-5 sm:p-8 w-full max-w-lg mx-auto';
+
 // Shared text style for labels drawn on the map (guess pins, edge markers, station)
 export const MAP_LABEL_CLASS = 'px-2 py-1 rounded text-white text-xs font-bold leading-tight whitespace-nowrap shadow';
 
@@ -43,7 +46,7 @@ export const UI_CONFIG = {
 // API Configuration
 export const API_CONFIG = {
   // Socket.io server URL
-  SOCKET_URL: import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080',
+  SOCKET_URL: import.meta.env.VITE_SOCKET_URL || window.location.origin,
   // MapTiler API key for map rendering
   MAPTILER_API_KEY: import.meta.env.VITE_MAPTILER_API_KEY,
 } as const;

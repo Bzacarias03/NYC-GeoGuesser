@@ -11,7 +11,7 @@ export async function createLobbyAs(page: Page, playerName: string): Promise<str
   await expect(page.getByRole('heading', { name: 'Game Lobby' })).toBeVisible();
   await expect(page.getByText(playerName)).toBeVisible();
 
-  const codeText = await page.locator('text=Game Code:').locator('..').locator('.font-mono').textContent();
+  const codeText = await page.getByTestId('lobby-code').textContent();
   if (!codeText?.trim()) {
     throw new Error('Lobby code not found after creating lobby');
   }

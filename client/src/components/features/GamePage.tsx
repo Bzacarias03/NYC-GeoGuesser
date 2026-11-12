@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import Map, { Marker } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { MapMouseEvent, MapRef, ViewState } from 'react-map-gl/maplibre';
+import type { MapMouseEvent, MapRef } from 'react-map-gl/maplibre';
 import type { Coordinates } from '../../types';
 import { API_CONFIG, MAP_CONFIG, MAP_LABEL_CLASS, PLAYER_COLORS } from '../../constants';
 import { isWithinNYCBounds, formatDistance } from '../../utils';
@@ -14,6 +14,9 @@ import staticMap from '../../assets/static_map.webp';
 import { GameSidebar } from '../ui/GameSidebar';
 import { OffscreenGuessIndicator } from '../ui/OffscreenGuessIndicator';
 import { MobileGameCard } from '../ui/MobileGameCard';
+
+/** Render at most 2x density: 3x phone screens cost ~2x the GPU work for no visible gain */
+const MAP_PIXEL_RATIO = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2);
 
 /** Width of the area (meters) framed around the station when a round ends */
 const REVEAL_VIEW_METERS = 5000;
@@ -29,11 +32,11 @@ const GameTimer: React.FC<{ timeRemaining: number; isActive: boolean }> = ({
   
   return (
     <div 
-      className={`px-6 py-3 rounded-lg border border-white text-white font-bold backdrop-blur-sm ${
+      className={`px-6 py-3 rounded-lg border border-white text-white font-bold ${
         isActive && timeRemaining <= 5 ? 'animate-pulse' : ''
       }`}
       style={{ 
-        backgroundColor: 'rgba(36, 36, 36, 0.75)',
+        backgroundColor: 'rgba(36, 36, 36, 0.9)',
         minWidth: '120px'
       }}
     >
@@ -53,9 +56,9 @@ const CountdownTimer: React.FC<{ countdownTime: number }> = ({
 }) => {
   return (
     <div 
-      className="px-6 py-3 rounded-lg border border-yellow-400 text-yellow-400 font-bold backdrop-blur-sm animate-pulse"
+      className="px-6 py-3 rounded-lg border border-yellow-400 text-yellow-400 font-bold animate-pulse"
       style={{ 
-        backgroundColor: 'rgba(36, 36, 36, 0.75)',
+        backgroundColor: 'rgba(36, 36, 36, 0.9)',
         minWidth: '120px'
       }}
     >
@@ -152,12 +155,20 @@ const GamePage: React.FC = () => {
     isShowingResults
   } = useGameLogic(lobbyId, currentPlayerId || null);
 
-  const [viewState, setViewState] = useState<ViewState>({
-    ...MAP_CONFIG.INITIAL_VIEWPORT,
-    bearing: 0,
-    pitch: 0,
-    padding: { top: 0, bottom: 0, left: 0, right: 0 }
-  });
+  // A phone keyboard left open from the lobby can leave the page scrolled after it
+  // closes, pushing the card under the browser UI. Close it and keep the page at the top.
+  useEffect(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    const resetScroll = () => window.scrollTo(0, 0);
+    resetScroll();
+    window.visualViewport?.addEventListener('resize', resetScroll);
+    return () => window.visualViewport?.removeEventListener('resize', resetScroll);
+  }, []);
+
+  // The map manages its own camera (uncontrolled), so panning/zooming doesn't
+  // re-render this page every frame. During the reveal we re-render at most once
+  // per animation frame so off-screen guess markers follow the map.
+  const [, setRevealFrame] = useState(0);
 
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
   const mapRef = useRef<MapRef>(null);
@@ -167,6 +178,25 @@ const GamePage: React.FC = () => {
     const card = mobileCardRef.current;
     return card && card.offsetHeight > 0 ? card.offsetTop + card.offsetHeight : 0;
   };
+
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!isShowingResults || !map) return;
+
+    let frame = 0;
+    const onMove = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        setRevealFrame(n => n + 1);
+      });
+    };
+    map.on('move', onMove);
+    return () => {
+      map.off('move', onMove);
+      cancelAnimationFrame(frame);
+    };
+  }, [isShowingResults]);
 
   // Round over: fly everyone to the station, framing ~5km around it
   useEffect(() => {
@@ -232,8 +262,8 @@ const GamePage: React.FC = () => {
   }, [currentLobby]);
 
   // During the reveal, split guesses into ones inside the map view (drawn as pins)
-  // and ones outside it (drawn at the map edge). Computed every render because
-  // the page re-renders on every map move.
+  // and ones outside it (drawn at the map edge). Recomputed on every render; during
+  // the reveal the move listener above re-renders once per frame.
   const map = mapRef.current;
   const mobileCardBottom = getMobileCardBottom();
   const edgeInset = mobileCardBottom ? { ...EDGE_INSET, top: mobileCardBottom + 16 } : EDGE_INSET;
@@ -396,7 +426,8 @@ const GamePage: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full h-dvh overflow-hidden" style={{ backgroundColor: '#242424' }}>
+    // Pinned to the viewport so page scroll (e.g. from a phone keyboard) can't shift the game
+    <div className="fixed inset-0 flex overflow-hidden" style={{ backgroundColor: '#242424' }}>
       {/* Sidebar (tablet/desktop; phones use the card over the map) */}
       <div className="hidden md:block h-full">
         <GameSidebar
@@ -431,12 +462,13 @@ const GamePage: React.FC = () => {
           myRoundResult={me?.roundResult ?? null}
         />
 
-        {/* Header with Back Button and Timer (tablet/desktop) */}
-        <div className="hidden md:block absolute top-4 left-4 right-4 z-10">
+        {/* Header with Back Button and Timer (tablet/desktop). The container spans the
+            map's width, so it ignores the pointer; only the back button takes clicks */}
+        <div className="hidden md:block absolute top-4 left-4 right-4 z-10 pointer-events-none">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBackClick}
-              className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:bg-white transition-colors"
+              className="pointer-events-auto bg-white/90 rounded-lg p-3 shadow-lg hover:bg-white transition-colors"
             >
               <ArrowBack />
             </button>
@@ -456,8 +488,8 @@ const GamePage: React.FC = () => {
         {/* Map */}
         <Map
           ref={mapRef}
-          {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
+          initialViewState={MAP_CONFIG.INITIAL_VIEWPORT}
+          pixelRatio={MAP_PIXEL_RATIO}
           onClick={handleMapClick}
           style={{ width: '100%', height: '100%' }}
           mapStyle={`https://api.maptiler.com/maps/0197eb34-bcc7-7eed-b35a-396c93f1b7ad/style.json?key=${API_CONFIG.MAPTILER_API_KEY}`}

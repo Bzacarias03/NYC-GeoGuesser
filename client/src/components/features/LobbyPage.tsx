@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLobbyStore, type GameLobby } from '../../stores/lobbyStore';
-import { PLAYER_COLORS } from '../../constants';
-import staticMap from '../../assets/static_map.webp';
-import { LocationOn, Lock, ContentCopy, ArrowBack, Person } from '@mui/icons-material';
+import { PAGE_CARD_CLASS, PLAYER_COLORS } from '../../constants';
+import { PageShell } from '../layout/PageShell';
+import { Lock, ContentCopy, ArrowBack, Person } from '@mui/icons-material';
 import { Slide, toast } from 'react-toastify';
 import { syncLobbyState, realtimeManager, syncGameSession } from '../../services/realtimeService';
 
-// Helper function to get consistent color for a player
+// Fallback color for a player without a server-assigned one
 const getPlayerColor = (playerId: string): string => {
   // Simple hash function to get consistent color based on player ID
   let hash = 0;
@@ -20,30 +20,8 @@ const getPlayerColor = (playerId: string): string => {
   return PLAYER_COLORS[colorIndex];
 };
 
-// Player Avatar Component
-const PlayerAvatar: React.FC<{ 
-  playerId: string; 
-  size?: 'sm' | 'md' | 'lg' 
-}> = ({ playerId, size = 'md' }) => {
-  const color = getPlayerColor(playerId);
-  
-  const sizeClasses = {
-    sm: 'w-6 h-6 text-xs',
-    md: 'w-8 h-8 text-sm',
-    lg: 'w-10 h-10 text-base'
-  };
-  
-  return (
-    <div 
-      className={`${sizeClasses[size]} rounded-lg flex items-center justify-center text-white font-semibold`}
-      style={{ backgroundColor: color }}
-    >
-    </div>
-  );
-};
-
 const LoadingState: React.FC = () => (
-  <div className="bg-[#242424] border border-white rounded-lg p-8 w-full max-w-lg mx-auto">
+  <div className={PAGE_CARD_CLASS}>
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
       <h2 className="text-white text-xl font-bold mb-2">Setting up your game...</h2>
@@ -67,7 +45,7 @@ const ErrorState: React.FC<{ error: string; onRetry: () => void; onBack: () => v
   }, [onBack]);
 
   return (
-    <div className="bg-[#242424] border border-white rounded-lg p-8 w-full max-w-lg mx-auto">
+    <div className={PAGE_CARD_CLASS}>
       <div className="text-center">
         <h2 className="text-white text-xl font-bold mb-4">Unable to access lobby</h2>
         <div className="bg-red-500/20 border border-red-500 rounded-lg p-4 mb-6">
@@ -103,6 +81,12 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
   const navigate = useNavigate();
   const lobbyRef = useRef(lobby);
   
+  // Download the game page (and the map library) while players wait, so the
+  // map is ready to go when the host starts
+  useEffect(() => {
+    void import('./GamePage');
+  }, []);
+
   // Keep the ref updated with the current lobby state
   useEffect(() => {
     lobbyRef.current = lobby;
@@ -198,101 +182,90 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
   const canStartGame = isHost && lobby.players.length >= 2;
 
   return (
-    <div className="bg-[#242424] border border-white rounded-lg p-8 w-full max-w-lg mx-auto">
+    <div className={PAGE_CARD_CLASS}>
       {/* Lobby Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-white text-2xl font-bold mb-2">Game Lobby</h2>
-        <div className="bg-white/10 rounded-lg p-3 mb-4">
-          <span className="text-white/80 text-sm">Game Code: <span className="font-mono font-bold">{lobby.code}</span></span>
-          <div className="flex items-center gap-2 mt-2">
-            <input
-              type="text"
-              value={lobby.shareLink}
-              readOnly
-              className="bg-white/5 border border-white/20 rounded px-3 py-2 text-white text-sm flex-1 min-w-0"
-            />
-            <button
-              onClick={handleCopyShareLink}
-              className="bg-white/20 hover:bg-white/30 border border-white/40 rounded px-3 py-2 text-white transition-colors hover:cursor-pointer"
-            >
-              <ContentCopy fontSize="small" />
-            </button>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-white text-xl sm:text-2xl font-bold">Game Lobby</h2>
+        <span className="flex items-center gap-1 text-white/70 text-sm">
+          <Person sx={{ fontSize: 18 }} />
+          {lobby.players.length}/{lobby.maxPlayers}
+          {lobby.isPrivate && <Lock sx={{ fontSize: 16 }} />}
+        </span>
+      </div>
+
+      {/* Game code + invite link */}
+      <div className="bg-white/10 rounded-lg p-3 mb-4 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-white/60 text-xs">Game Code</div>
+          <div data-testid="lobby-code" className="text-white font-mono font-bold text-2xl tracking-widest">
+            {lobby.code}
           </div>
         </div>
-        
-        <div className="flex items-center justify-center gap-2 text-white/80">
-          <Person fontSize="small" />
-          <span>{lobby.players.length}/{lobby.maxPlayers} Players</span>
-          {lobby.isPrivate && <Lock fontSize="small" />}
-        </div>
+        <button
+          onClick={handleCopyShareLink}
+          className="shrink-0 flex items-center gap-1.5 bg-white/20 hover:bg-white/30 border border-white/40 rounded-lg px-3 py-2 text-white text-sm font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+        >
+          <ContentCopy sx={{ fontSize: 16 }} />
+          Copy invite link
+        </button>
       </div>
 
       {/* Players List */}
-      <div className="mb-6">
-        <h3 className="text-white text-lg font-semibold mb-3">Players</h3>
-        <div className="space-y-2">
-          {lobby.players.map((player) => (
-            <div
-              key={player.id}
-              className="bg-white/10 rounded-lg p-3 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-2">
-                <PlayerAvatar playerId={player.id} size="sm" />
-                <span className="text-white">{player.name}</span>
-                {player.isHost && (
-                  <span className="bg-gray-800 text-white text-xs px-2 py-1 rounded">
-                    Host
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {player.isReady ? (
-                  <span className="text-xs text-green-400">
-                    Connected
-                  </span>
-                ) : (
-                  <span className="text-xs text-yellow-400">
-                    Reconnecting...
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-          
-          {/* Empty slots */}
-          {Array.from({ length: lobby.maxPlayers - lobby.players.length }).map((_, index) => (
-            <div
-              key={`empty-${index}`}
-              className="bg-white/5 border border-white/10 border-dashed rounded-lg p-3 flex items-center justify-center"
-            >
-              <span className="text-white/40 text-sm">Waiting for player...</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <h3 className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-2">Players</h3>
+      <ul className="space-y-1.5 mb-4">
+        {lobby.players.map((player) => (
+          <li
+            key={player.id}
+            className="bg-white/10 rounded-lg px-3 py-2 flex items-center gap-2 min-w-0"
+          >
+            <span
+              className="w-5 h-5 rounded shrink-0"
+              style={{ backgroundColor: player.color ?? getPlayerColor(player.id) }}
+            />
+            <span className="text-white truncate min-w-0 flex-1">{player.name}</span>
+            {player.isHost && (
+              <span className="shrink-0 bg-gray-800 text-white text-[11px] font-semibold px-1.5 py-0.5 rounded">
+                Host
+              </span>
+            )}
+            <span
+              role="img"
+              aria-label={player.isReady ? 'Connected' : 'Reconnecting'}
+              title={player.isReady ? 'Connected' : 'Reconnecting...'}
+              className={`shrink-0 w-2.5 h-2.5 rounded-full ${player.isReady ? 'bg-green-400' : 'bg-yellow-400 animate-pulse'}`}
+            />
+          </li>
+        ))}
+
+        {/* Empty slots */}
+        {Array.from({ length: lobby.maxPlayers - lobby.players.length }).map((_, index) => (
+          <li
+            key={`empty-${index}`}
+            className="border border-white/10 border-dashed rounded-lg px-3 py-2 text-center text-white/40 text-sm"
+          >
+            Waiting for player...
+          </li>
+        ))}
+      </ul>
 
       {/* Game Status Message */}
-      <div className="mb-4 text-center">
+      <div className="mb-3 text-center text-xs sm:text-sm">
         {isHost ? (
-          <>
-            {lobby.players.length < 2 ? (
-              <p className="text-yellow-400 text-sm">Need at least 2 players to start</p>
-            ) : (
-              <p className="text-green-400 text-sm">Ready to start! Click "Start Game" to begin.</p>
-            )}
-          </>
+          lobby.players.length < 2 ? (
+            <p className="text-yellow-400">Need at least 2 players to start</p>
+          ) : (
+            <p className="text-green-400">Ready to start!</p>
+          )
         ) : (
-          <p className="text-white/80 text-sm">
-            Waiting for host to start the game...
-          </p>
+          <p className="text-white/80">Waiting for host to start the game...</p>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-2 sm:gap-3">
         <button
           onClick={handleLeaveLobby}
-          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
         >
           Leave Lobby
         </button>
@@ -301,7 +274,7 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
           <button
             onClick={handleStartGame}
             disabled={!canStartGame}
-            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
           >
             Start Game
           </button>
@@ -353,37 +326,7 @@ export const LobbyPage: React.FC = () => {
     return <LoadingState />;
   };
 
-  return (
-    <div 
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative"
-      style={{
-        backgroundImage: `url(${staticMap})`,
-      }}
-    >
-      {/* Dark overlay - needed for text visibility */}
-      <div className="absolute inset-0 bg-black/75"></div>
-
-      {/* Header with Logo and Title */}
-      <div className="relative z-10 px-8 pt-8 pb-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <LocationOn 
-            style={{ 
-              fontSize: 48,
-              color: '#FF0000'
-            }} 
-          />
-          <h1 style={{color: 'white'}} className="text-3xl font-bold tracking-wide">
-            NYC GeoGuesser
-          </h1>
-        </div>
-      </div>
-
-      {/* Main Content - Centered Modal */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-8">
-        {renderContent()}
-      </div>
-    </div>
-  );
+  return <PageShell>{renderContent()}</PageShell>;
 };
 
 export default React.memo(LobbyPage);

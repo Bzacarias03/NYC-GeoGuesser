@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LocationOn } from '@mui/icons-material';
-import { ERROR_MESSAGES } from '../../constants';
+import { ERROR_MESSAGES, PAGE_CARD_CLASS } from '../../constants';
 import { useLobbyStore } from '../../stores/lobbyStore';
-import staticMap from '../../assets/static_map.webp';
+import { PageShell } from '../layout/PageShell';
 import { loadLobbySession } from '../../utils';
 
 interface FormData {
@@ -120,100 +119,72 @@ export const HomePage: React.FC = () => {
   const currentError = localError || null;
 
   return (
-    <div 
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat relative"
-      style={{
-        backgroundImage: `url(${staticMap})`,
-      }}
-    >
-      {/* Dark overlay - needed for text visibility */}
-      <div className="absolute inset-0 bg-black/75"></div>
+    <PageShell>
+      <div className={PAGE_CARD_CLASS}>
+        {/* Error Display */}
+        <ErrorDisplay 
+          error={currentError} 
+          onDismiss={() => {
+            setLocalError(null);
+          }} 
+        />
 
-      {/* Header with Logo and Title */}
-      <div className="relative z-10 px-8 pt-8 pb-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <LocationOn 
-            style={{ 
-              fontSize: 48,
-              color: '#FF0000'
-            }} 
+        {/* Header */}
+        <div className="text-center mb-4 sm:mb-6">
+          <h2 className="text-white text-xl sm:text-2xl font-bold">Join or Start Game</h2>
+        </div>
+
+        {/* Username Input - Shared */}
+        <div className="mb-4 sm:mb-6">
+          <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-2">
+            Your Name
+          </label>
+          <input
+            id="username"
+            type="text"
+            value={formData.username}
+            onChange={(e) => handleInputChange('username', e.target.value)}
+            placeholder="Enter your name"
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+            disabled={isLoading.startGame || isLoading.joinGame}
           />
-          <h1 style={{color: 'white'}} className="text-3xl font-bold tracking-wide">
-            NYC GeoGuesser
-          </h1>
+        </div>
+
+        {/* Lobby ID Input - For Join Game */}
+        <div className="mb-4 sm:mb-6">
+          <label htmlFor="lobby-id" className="block text-white/80 text-sm font-medium mb-2">
+            Lobby ID
+          </label>
+          <input
+            id="lobby-id"
+            type="text"
+            value={formData.lobbyId}
+            onChange={(e) => handleInputChange('lobbyId', e.target.value)}
+            placeholder="Enter lobby code"
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+            disabled={isLoading.startGame || isLoading.joinGame}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 sm:mt-10">
+          <button
+            onClick={handleStartGame}
+            disabled={isLoading.startGame || !formData.username.trim() || !!formData.lobbyId.trim()}
+            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+          >
+            {isLoading.startGame ? 'Starting...' : 'Start New Game'}
+          </button>
+          <button
+            onClick={handleJoinGame}
+            disabled={isLoading.joinGame || !formData.username.trim() || !formData.lobbyId.trim()}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
+          >
+            {isLoading.joinGame ? 'Joining...' : 'Join Game'}
+          </button>
         </div>
       </div>
-      
-      {/* Main Content */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-8">
-        {/* Central Card - matching LobbyPage styling */}
-        <div className="bg-[#242424] border border-white rounded-lg p-8 w-full max-w-lg mx-auto">
-
-          {/* Error Display */}
-          <ErrorDisplay 
-            error={currentError} 
-            onDismiss={() => {
-              setLocalError(null);
-            }} 
-          />
-
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-white text-2xl font-bold">Join or Start Game</h2>
-          </div>
-
-          {/* Username Input - Shared */}
-          <div className="mb-6">
-            <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-2">
-              Your Name
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={formData.username}
-              onChange={(e) => handleInputChange('username', e.target.value)}
-              placeholder="Enter your name"
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-              disabled={isLoading.startGame || isLoading.joinGame}
-            />
-          </div>
-
-          {/* Lobby ID Input - For Join Game */}
-          <div className="mb-6">
-            <label htmlFor="lobby-id" className="block text-white/80 text-sm font-medium mb-2">
-              Lobby ID
-            </label>
-            <input
-              id="lobby-id"
-              type="text"
-              value={formData.lobbyId}
-              onChange={(e) => handleInputChange('lobbyId', e.target.value)}
-              placeholder="Enter lobby code"
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-              disabled={isLoading.startGame || isLoading.joinGame}
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-10">
-            <button
-              onClick={handleStartGame}
-              disabled={isLoading.startGame || !formData.username.trim() || !!formData.lobbyId.trim()}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
-            >
-              {isLoading.startGame ? 'Starting...' : 'Start New Game'}
-            </button>
-            <button
-              onClick={handleJoinGame}
-              disabled={isLoading.joinGame || !formData.username.trim() || !formData.lobbyId.trim()}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-medium whitespace-nowrap transition-colors hover:cursor-pointer"
-            >
-              {isLoading.joinGame ? 'Joining...' : 'Join Game'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </PageShell>
   );
 };
 

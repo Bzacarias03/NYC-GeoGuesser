@@ -45,8 +45,7 @@ test.describe('Multiplayer lobby', () => {
 
       await expect(hostPage.getByText('GuestDave')).toBeVisible();
       await expect(joinerPage.getByText('HostCarol')).toBeVisible();
-      await expect(joinerPage.getByText(`Game Code:`)).toBeVisible();
-      await expect(joinerPage.locator('.font-mono').filter({ hasText: lobbyCode })).toBeVisible();
+      await expect(joinerPage.getByTestId('lobby-code')).toHaveText(lobbyCode);
     } finally {
       await hostContext.close();
       await joinerContext.close();
