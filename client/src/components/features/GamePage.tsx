@@ -1,16 +1,31 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Map, { Marker } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { MapMouseEvent, ViewState } from 'react-map-gl/maplibre';
+import type { MapMouseEvent, MapRef } from 'react-map-gl/maplibre';
 import type { Coordinates } from '../../types';
-import { API_CONFIG, MAP_CONFIG, PLAYER_COLORS } from '../../constants';
-import { isWithinNYCBounds } from '../../utils';
+import { API_CONFIG, MAP_CONFIG, MAP_LABEL_CLASS, PLAYER_COLORS } from '../../constants';
+import { isWithinNYCBounds, formatDistance } from '../../utils';
+import { edgePosition, EDGE_INSET } from '../../utils/edgePosition';
 import { useGameLogic } from '../../hooks';
 import { useLobbyStore } from '../../stores/lobbyStore';
 import { EmojiEvents, ArrowBack } from '@mui/icons-material';
 import staticMap from '../../assets/static_map.webp';
 import { GameSidebar } from '../ui/GameSidebar';
+import { OffscreenGuessIndicator } from '../ui/OffscreenGuessIndicator';
+import { MobileGameCard } from '../ui/MobileGameCard';
+import { toast } from 'react-toastify';
+import { socketService } from '../../services/socketService';
+import { SERVER_EVENTS, type ErrorEvent } from '../../types/socket-events';
+
+/** Render at most 2x density: 3x phone screens cost ~2x the GPU work for no visible gain */
+const MAP_PIXEL_RATIO = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2);
+
+const LOST_SERVER_MESSAGE = 'Lost connection to the game server. The game has ended.';
+
+/** Width of the area (meters) framed around the station when a round ends */
+const REVEAL_VIEW_METERS = 5000;
+const METERS_PER_DEGREE_LAT = 111320;
 
 const GameTimer: React.FC<{ timeRemaining: number; isActive: boolean }> = ({ 
   timeRemaining, 
@@ -22,11 +37,11 @@ const GameTimer: React.FC<{ timeRemaining: number; isActive: boolean }> = ({
   
   return (
     <div 
-      className={`px-6 py-3 rounded-lg border border-white text-white font-bold backdrop-blur-sm ${
+      className={`px-6 py-3 rounded-lg border border-white text-white font-bold ${
         isActive && timeRemaining <= 5 ? 'animate-pulse' : ''
       }`}
       style={{ 
-        backgroundColor: 'rgba(36, 36, 36, 0.75)',
+        backgroundColor: 'rgba(36, 36, 36, 0.9)',
         minWidth: '120px'
       }}
     >
@@ -46,9 +61,9 @@ const CountdownTimer: React.FC<{ countdownTime: number }> = ({
 }) => {
   return (
     <div 
-      className="px-6 py-3 rounded-lg border border-yellow-400 text-yellow-400 font-bold backdrop-blur-sm animate-pulse"
+      className="px-6 py-3 rounded-lg border border-yellow-400 text-yellow-400 font-bold animate-pulse"
       style={{ 
-        backgroundColor: 'rgba(36, 36, 36, 0.75)',
+        backgroundColor: 'rgba(36, 36, 36, 0.9)',
         minWidth: '120px'
       }}
     >
@@ -95,9 +110,10 @@ const GuessPin: React.FC<{
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white"></div>
         )}
       </div>
-      {isCurrentPlayer && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 px-2 py-1 bg-blue-500 text-white text-xs rounded whitespace-nowrap">
-          Your guess
+      {/* Own pin says "Your guess"; other players' pins (shown at round end) show their name */}
+      {(isCurrentPlayer || playerName) && (
+        <div className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 ${isCurrentPlayer ? 'bg-blue-500' : 'bg-black/70'} ${MAP_LABEL_CLASS}`}>
+          {isCurrentPlayer ? 'Your guess' : playerName}
         </div>
       )}
     </div>
@@ -110,7 +126,7 @@ const StationMarker: React.FC<{ stationName: string }> = ({ stationName }) => (
     <div className="w-8 h-8 bg-yellow-400 border-2 border-red-600 rounded-full shadow-lg animate-pulse">
       <div className="absolute inset-0 bg-red-600 rounded-full animate-ping opacity-75"></div>
     </div>
-    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 px-2 py-1 bg-red-600 text-white text-xs rounded whitespace-nowrap font-semibold">
+    <div className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-red-600 ${MAP_LABEL_CLASS}`}>
       {stationName}
     </div>
   </div>
@@ -120,22 +136,21 @@ const StationMarker: React.FC<{ stationName: string }> = ({ stationName }) => (
 const GamePage: React.FC = () => {
   const { gameSessionId } = useParams<{ gameSessionId: string }>();
   const navigate = useNavigate();
-  const { currentPlayerId, currentLobby } = useLobbyStore();
+  const { currentPlayerId, currentLobby, isRejoining } = useLobbyStore();
   
   // Use lobbyId from params (which is actually the lobby ID now, not gameSessionId)
   const lobbyId = gameSessionId || currentLobby?.id || null;
   
   const {
     currentStation,
-    guesses,
-    players: gamePlayers,
+    myGuess,
+    guessedPlayerIds,
     timeRemaining,
     isRoundActive,
     isCountdown,
     countdownTime,
     roundResults,
     gameResults,
-    isLoading,
     error,
     submitGuess,
     hasCurrentPlayerGuessed,
@@ -145,14 +160,83 @@ const GamePage: React.FC = () => {
     isShowingResults
   } = useGameLogic(lobbyId, currentPlayerId || null);
 
-  const [viewState, setViewState] = useState<ViewState>({
-    ...MAP_CONFIG.INITIAL_VIEWPORT,
-    bearing: 0,
-    pitch: 0,
-    padding: { top: 0, bottom: 0, left: 0, right: 0 }
-  });
+  // Our seat is gone: the server restarted (lobbies live in memory) or the rejoin
+  // failed. This game can't continue, so leave instead of showing a frozen round.
+  useEffect(() => {
+    if (!currentLobby && !isRejoining) {
+      toast.error(LOST_SERVER_MESSAGE);
+      navigate('/', { replace: true });
+    }
+  }, [currentLobby, isRejoining, navigate]);
+
+  // The server ended this lobby's game after an error, or we gave up reconnecting
+  useEffect(() => {
+    return socketService.on<ErrorEvent>(SERVER_EVENTS.ERROR, (error) => {
+      if (error.code === 'GAME_ABORTED') {
+        toast.error(error.message);
+        navigate('/lobby', { replace: true });
+      } else if (error.code === 'RECONNECTION_FAILED') {
+        toast.error(LOST_SERVER_MESSAGE);
+        navigate('/', { replace: true });
+      }
+    });
+  }, [navigate]);
+
+  // A phone keyboard left open from the lobby can leave the page scrolled after it
+  // closes, pushing the card under the browser UI. Close it and keep the page at the top.
+  useEffect(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    const resetScroll = () => window.scrollTo(0, 0);
+    resetScroll();
+    window.visualViewport?.addEventListener('resize', resetScroll);
+    return () => window.visualViewport?.removeEventListener('resize', resetScroll);
+  }, []);
+
+  // The map manages its own camera (uncontrolled), so panning/zooming doesn't
+  // re-render this page every frame. During the reveal we re-render at most once
+  // per animation frame so off-screen guess markers follow the map.
+  const [, setRevealFrame] = useState(0);
 
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
+  const mapRef = useRef<MapRef>(null);
+  // Phone-only card over the top of the map (display:none on wider screens, so 0 height)
+  const mobileCardRef = useRef<HTMLDivElement>(null);
+  const getMobileCardBottom = () => {
+    const card = mobileCardRef.current;
+    return card && card.offsetHeight > 0 ? card.offsetTop + card.offsetHeight : 0;
+  };
+
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!isShowingResults || !map) return;
+
+    let frame = 0;
+    const onMove = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        setRevealFrame(n => n + 1);
+      });
+    };
+    map.on('move', onMove);
+    return () => {
+      map.off('move', onMove);
+      cancelAnimationFrame(frame);
+    };
+  }, [isShowingResults]);
+
+  // Round over: fly everyone to the station, framing ~5km around it
+  useEffect(() => {
+    if (!roundResults) return;
+    const { latitude, longitude } = roundResults.station;
+    const halfLat = REVEAL_VIEW_METERS / 2 / METERS_PER_DEGREE_LAT;
+    const halfLng = halfLat / Math.cos((latitude * Math.PI) / 180);
+    // On phones, center the station in the part of the map below the card
+    mapRef.current?.fitBounds(
+      [[longitude - halfLng, latitude - halfLat], [longitude + halfLng, latitude + halfLat]],
+      { padding: { top: 20 + getMobileCardBottom(), right: 20, bottom: 20, left: 20 }, maxZoom: MAP_CONFIG.MAX_ZOOM, duration: 1500 }
+    );
+  }, [roundResults]);
 
   // Handle map clicks for placing guess pins
   // Allow multiple guesses - players can update their guess during the round
@@ -204,56 +288,62 @@ const GamePage: React.FC = () => {
     return PLAYER_COLORS[fallbackIndex % PLAYER_COLORS.length];
   }, [currentLobby]);
 
-  // Create player guess markers
-  const playerGuessMarkers = useMemo(() => {
-    const markers: React.ReactElement[] = [];
-    if (!guesses || guesses.length === 0) return markers;
+  // During the reveal, split guesses into ones inside the map view (drawn as pins)
+  // and ones outside it (drawn at the map edge). Recomputed on every render; during
+  // the reveal the move listener above re-renders once per frame.
+  const map = mapRef.current;
+  const mobileCardBottom = getMobileCardBottom();
+  const edgeInset = mobileCardBottom ? { ...EDGE_INSET, top: mobileCardBottom + 16 } : EDGE_INSET;
+  const revealedGuesses = isShowingResults && roundResults && map
+    ? roundResults.guesses.map((guess, index) => {
+        const onScreen = map.getBounds().contains([guess.lng, guess.lat]);
+        const { clientWidth, clientHeight } = map.getContainer();
+        return {
+          guess,
+          color: getPlayerColorById(guess.playerId, index),
+          edge: onScreen ? null : edgePosition(map.project([guess.lng, guess.lat]), clientWidth, clientHeight, edgeInset),
+        };
+      })
+    : [];
 
-    const currentPlayerGuess = guesses.find(g => g.playerId === currentPlayerId);
-
-    // Add current player's guess
-    if (currentPlayerGuess) {
-      const currentPlayerColor = getPlayerColorById(currentPlayerGuess.playerId, 0);
-      markers.push(
-        <Marker
-          key="current-player-guess"
-          longitude={currentPlayerGuess.lng}
-          latitude={currentPlayerGuess.lat}
-          anchor="center"
-        >
-          <GuessPin 
-            color={currentPlayerColor} 
-            isCurrentPlayer={true}
-            size="large"
-            playerName={currentPlayerGuess.playerName}
-          />
-        </Marker>
-      );
-    }
-
-    // Add other players' guesses
-    guesses
-      .filter(g => g.playerId !== currentPlayerId)
-      .forEach((guess, index) => {
-        const otherPlayerColor = getPlayerColorById(guess.playerId, index + 1);
-        markers.push(
+  // Guess pins: only our own during the round, on-screen guesses once it ends
+  const renderGuessMarkers = () => {
+    if (isShowingResults && roundResults) {
+      return revealedGuesses
+        .filter(({ edge }) => edge === null)
+        .map(({ guess, color }) => (
           <Marker
-            key={`guess-${guess.playerId}-${guess.submittedAt}`}
+            key={`guess-${guess.playerId}`}
             longitude={guess.lng}
             latitude={guess.lat}
             anchor="center"
           >
-            <GuessPin 
-              color={otherPlayerColor}
+            <GuessPin
+              color={color}
+              isCurrentPlayer={guess.playerId === currentPlayerId}
               playerName={guess.playerName}
-              size="medium"
+              size={guess.playerId === currentPlayerId ? 'large' : 'medium'}
             />
           </Marker>
-        );
-      });
+        ));
+    }
 
-    return markers;
-  }, [guesses, currentPlayerId, getPlayerColorById]);
+    if (!myGuess || !currentPlayerId) return [];
+    return [
+      <Marker
+        key="current-player-guess"
+        longitude={myGuess.lng}
+        latitude={myGuess.lat}
+        anchor="center"
+      >
+        <GuessPin
+          color={getPlayerColorById(currentPlayerId, 0)}
+          isCurrentPlayer={true}
+          size="large"
+        />
+      </Marker>
+    ];
+  };
 
   // Station location marker (shown after round ends)
   const stationMarker = useMemo(() => {
@@ -271,36 +361,31 @@ const GamePage: React.FC = () => {
     );
   }, [isShowingResults, roundResults]);
 
-  // Get players for scoreboard from lobby store (more up-to-date)
+  // Get players for scoreboard from lobby store
   const players = useMemo(() => {
-    if (currentLobby?.players && currentLobby.players.length > 0) {
-      return currentLobby.players
-        .map(player => ({
-          id: player.id,
-          name: player.name,
-          score: player.score ?? 0, // Use actual score from lobby, fallback to 0
-          color: player.color // Preserve color from lobby
-        }))
-        .sort((a, b) => b.score - a.score);
-    }
-    // Fallback to gamePlayers from useGameLogic
-    return gamePlayers
+    return (currentLobby?.players ?? [])
       .map(player => ({
         id: player.id,
         name: player.name,
-        score: player.score,
-        color: undefined // No color available from gamePlayers
+        score: player.score ?? 0,
+        color: player.color
       }))
       .sort((a, b) => b.score - a.score);
-  }, [currentLobby, gamePlayers]);
+  }, [currentLobby]);
 
-  // Enhanced players data with guess status for sidebar
+  // Sidebar data: who has guessed during the round, each player's result once it ends
   const playersWithGuessStatus = useMemo(() => {
-    return players.map(player => ({
-      ...player,
-      hasGuessed: guesses.some(guess => guess.playerId === player.id)
-    }));
-  }, [players, guesses]);
+    return players.map(player => {
+      const result = roundResults?.guesses.find(guess => guess.playerId === player.id);
+      return {
+        ...player,
+        hasGuessed: guessedPlayerIds.includes(player.id),
+        roundResult: result ? { points: result.points, distance: result.distance } : null,
+      };
+    });
+  }, [players, guessedPlayerIds, roundResults]);
+
+  const me = playersWithGuessStatus.find(player => player.id === currentPlayerId);
 
   if (error) {
     return (
@@ -319,17 +404,6 @@ const GamePage: React.FC = () => {
     );
   }
 
-  if (isLoading && currentRoundNumber === 0 && !isCountdown) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">Loading Game...</h2>
-        </div>
-      </div>
-    );
-  }
-
   if (isGameComplete && gameResults) {
     return (
       <div 
@@ -337,9 +411,9 @@ const GamePage: React.FC = () => {
         style={{ backgroundImage: `url(${staticMap})` }}
       >
         <div className="absolute inset-0 bg-black/75"></div>
-        <div className="relative z-10 min-h-screen flex items-center justify-center p-8">
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-8">
           <div 
-            className="rounded-lg p-8 max-w-md w-full text-center border"
+            className="rounded-lg p-6 sm:p-8 max-w-md w-full text-center border"
             style={{ 
               backgroundColor: '#242424',
               borderColor: 'white',
@@ -379,25 +453,49 @@ const GamePage: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full h-screen" style={{ backgroundColor: '#242424' }}>
-      {/* Sidebar */}
-      <GameSidebar
-        players={playersWithGuessStatus}
-        currentPlayerId={currentPlayerId || null}
-        currentRound={currentRoundNumber}
-        stationName={currentStation?.station_name}
-        stationLines={currentStation?.line}
-        isRoundActive={isRoundActive}
-      />
+    // Pinned to the viewport so page scroll (e.g. from a phone keyboard) can't shift the game
+    <div className="fixed inset-0 flex overflow-hidden" style={{ backgroundColor: '#242424' }}>
+      {/* Sidebar (tablet/desktop; phones use the card over the map) */}
+      <div className="hidden md:block h-full">
+        <GameSidebar
+          players={playersWithGuessStatus}
+          currentPlayerId={currentPlayerId || null}
+          currentRound={currentRoundNumber}
+          stationName={currentStation?.station_name}
+          stationLines={currentStation?.line}
+          isRoundActive={isRoundActive}
+          showRoundResults={isShowingResults}
+          isFinalRound={currentRoundNumber >= totalRounds}
+        />
+      </div>
 
       {/* Main Game Area */}
-      <div className="flex-1 relative">
-        {/* Header with Back Button and Timer */}
-        <div className="absolute top-4 left-4 right-4 z-10">
+      <div className="flex-1 min-w-0 relative">
+        {/* Phone: round, timer, station and your own status over the map */}
+        <MobileGameCard
+          cardRef={mobileCardRef}
+          onBack={handleBackClick}
+          currentRound={currentRoundNumber}
+          totalRounds={totalRounds}
+          stationName={currentStation?.station_name}
+          stationLines={currentStation?.line}
+          isCountdown={isCountdown}
+          countdownTime={countdownTime}
+          isRoundActive={isRoundActive}
+          timeRemaining={timeRemaining}
+          myScore={me?.score ?? 0}
+          hasGuessed={hasCurrentPlayerGuessed()}
+          showRoundResults={isShowingResults}
+          myRoundResult={me?.roundResult ?? null}
+        />
+
+        {/* Header with Back Button and Timer (tablet/desktop). The container spans the
+            map's width, so it ignores the pointer; only the back button takes clicks */}
+        <div className="hidden md:block absolute top-4 left-4 right-4 z-10 pointer-events-none">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBackClick}
-              className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:bg-white transition-colors"
+              className="pointer-events-auto bg-white/90 rounded-lg p-3 shadow-lg hover:bg-white transition-colors"
             >
               <ArrowBack />
             </button>
@@ -416,13 +514,14 @@ const GamePage: React.FC = () => {
 
         {/* Map */}
         <Map
-          {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
+          ref={mapRef}
+          initialViewState={MAP_CONFIG.INITIAL_VIEWPORT}
+          pixelRatio={MAP_PIXEL_RATIO}
           onClick={handleMapClick}
           style={{ width: '100%', height: '100%' }}
           mapStyle={`https://api.maptiler.com/maps/0197eb34-bcc7-7eed-b35a-396c93f1b7ad/style.json?key=${API_CONFIG.MAPTILER_API_KEY}`}
-          maxZoom={13.5}
-          minZoom={10}
+          maxZoom={MAP_CONFIG.MAX_ZOOM}
+          minZoom={MAP_CONFIG.MIN_ZOOM}
           maxBounds={[
             [MAP_CONFIG.NYC_BOUNDS.west, MAP_CONFIG.NYC_BOUNDS.south],
             [MAP_CONFIG.NYC_BOUNDS.east, MAP_CONFIG.NYC_BOUNDS.north]
@@ -430,11 +529,26 @@ const GamePage: React.FC = () => {
           cursor={isRoundActive && !hasCurrentPlayerGuessed() ? 'crosshair' : 'grab'}
         >
           {/* Player guess markers */}
-          {playerGuessMarkers}
+          {renderGuessMarkers()}
           
           {/* Station marker */}
           {stationMarker}
         </Map>
+
+        {/* Guesses outside the view, shown at the map edge in their direction */}
+        <div className="absolute inset-0 pointer-events-none z-[5]">
+          {revealedGuesses
+            .filter(({ edge }) => edge !== null)
+            .map(({ guess, color, edge }) => (
+              <OffscreenGuessIndicator
+                key={`offscreen-${guess.playerId}`}
+                x={edge!.x}
+                y={edge!.y}
+                color={color}
+                label={`${guess.playerId === currentPlayerId ? 'You' : guess.playerName} · ${formatDistance(guess.distance)}`}
+              />
+            ))}
+        </div>
       </div>
 
       {/* Leave Game Confirmation Dialog */}
@@ -470,44 +584,6 @@ const GamePage: React.FC = () => {
         </div>
       )}
 
-      {/* Round Results Overlay */}
-      {isShowingResults && roundResults && (
-        <div className="absolute inset-0 bg-black/75 z-20 flex items-start justify-center pt-8">
-          <div 
-            className="rounded-lg p-8 max-w-md w-full mx-4 border"
-            style={{ 
-              backgroundColor: '#242424',
-              borderColor: 'white',
-              borderWidth: '1px'
-            }}
-          >
-            <h2 className="text-2xl font-bold text-center mb-4 text-white">Round {roundResults.roundNumber} Results</h2>
-            <div className="space-y-3">
-              {roundResults.guesses.map((guess, index) => {
-                const resultColor = getPlayerColorById(guess.playerId, index);
-                return (
-                  <div key={`${guess.playerId}-${guess.submittedAt}`} className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: resultColor }}
-                      />
-                      <span className="font-medium text-white">{guess.playerName}</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-blue-400">+{guess.points} pts</div>
-                      <div className="text-sm text-gray-300">{Math.round(guess.distance)}m away</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="text-center text-sm text-gray-300 mt-4">
-              {roundResults.roundNumber < totalRounds ? 'Next round starting soon...' : 'Calculating final results...'}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

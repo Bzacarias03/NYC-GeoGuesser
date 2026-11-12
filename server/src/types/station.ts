@@ -2,17 +2,26 @@
  * Station data structure matching the JSON file format
  * and spec requirements
  */
+export interface StationCoordinate {
+  latitude: number;
+  longitude: number;
+}
+
 export interface Station {
+  /** MTA Complex ID (unique per station complex) */
+  id: string;
   /** Station display name */
   station_name: string;
   /** Comma-separated list of train lines serving this station */
   line: string;
-  /** Latitude coordinate */
+  /** Latitude coordinate (center of the complex, used for display) */
   latitude: number;
-  /** Longitude coordinate */
+  /** Longitude coordinate (center of the complex, used for display) */
   longitude: number;
   /** Borough where station is located */
   borough: string;
+  /** Every platform in the complex; guesses are scored against the nearest */
+  coordinates: StationCoordinate[];
 }
 
 /**

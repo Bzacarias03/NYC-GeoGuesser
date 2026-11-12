@@ -10,6 +10,8 @@
  * Station base type (matching server Station type)
  */
 export interface Station {
+  /** MTA Complex ID (unique per station complex) */
+  id: string;
   /** Station display name */
   station_name: string;
   /** Comma-separated list of train lines serving this station */
@@ -20,6 +22,8 @@ export interface Station {
   longitude: number;
   /** Borough where station is located */
   borough: string;
+  /** Every platform in the complex; guesses are scored against the nearest */
+  coordinates: Array<{ latitude: number; longitude: number }>;
 }
 
 /**
@@ -29,6 +33,12 @@ export interface StationWithTrains extends Station {
   /** Parsed array of train lines */
   trains: string[];
 }
+
+/**
+ * Station as sent while a round is in play: name and lines only.
+ * Coordinates arrive with the round results.
+ */
+export type PublicStation = Omit<StationWithTrains, 'latitude' | 'longitude' | 'coordinates'>;
 
 /**
  * Player object from server
@@ -43,6 +53,8 @@ export interface ServerPlayer {
   connected: boolean;
   socketId: string;
   color?: string;
+  /** Whether the player has guessed this round (guess itself is hidden until the round ends) */
+  hasGuessed: boolean;
 }
 
 /**
@@ -54,7 +66,7 @@ export interface ServerLobby {
   players: ServerPlayer[];
   gameState: 'waiting' | 'countdown' | 'active' | 'results' | 'finished';
   currentRound: number;
-  currentStation: StationWithTrains | null;
+  currentStation: StationWithTrains | PublicStation | null;
   roundTimer: number;
   roundStartTime: number | null;
   gameResults: {
@@ -112,12 +124,18 @@ export interface LeaveLobbyEvent {
   // No payload
 }
 
+export interface RejoinLobbyEvent {
+  sessionToken: string;
+}
+
 /**
  * Server to Client Events
  */
 export interface LobbyJoinedEvent {
   lobby: ServerLobby;
   player: ServerPlayer;
+  /** Secret for reclaiming this seat after a refresh or dropped connection */
+  sessionToken: string;
 }
 
 export interface LobbyUpdateEvent {
@@ -125,13 +143,15 @@ export interface LobbyUpdateEvent {
 }
 
 export interface CountdownStartEvent {
-  station: StationWithTrains;
+  station: PublicStation;
   countdown: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundStartEvent {
-  station: StationWithTrains;
+  station: PublicStation;
   timer: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundEndEvent {
@@ -157,6 +177,8 @@ export const CLIENT_EVENTS = {
   START_GAME: 'startGame',
   MAKE_GUESS: 'makeGuess',
   LEAVE_LOBBY: 'leaveLobby',
+  REJOIN_LOBBY: 'rejoinLobby',
+  REQUEST_GAME_STATE: 'requestGameState',
 } as const;
 
 export const SERVER_EVENTS = {

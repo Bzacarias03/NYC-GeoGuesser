@@ -5,6 +5,7 @@ import { CLIENT_EVENTS, SERVER_EVENTS, type StartGameEvent, type MakeGuessEvent 
 import { GAME_CONFIG } from '../../config/constants';
 import { startCountdownTimer } from './timer-handlers';
 import { parseStationTrains } from '../../utils/station-filter';
+import { toPublicLobby } from '../../utils/public-views';
 
 /**
  * Setup game event handlers
@@ -137,9 +138,9 @@ export function setupGameHandlers(
       // Update lobby in manager
       lobbyManager.updateLobby(lobbyId, updatedLobby);
 
-      // Broadcast lobby update to all players (so they can see who has guessed)
+      // Broadcast lobby update so players can see who has guessed (not where)
       io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, {
-        lobby: updatedLobby,
+        lobby: toPublicLobby(updatedLobby),
       });
     } catch (error) {
       socket.emit(SERVER_EVENTS.ERROR, {

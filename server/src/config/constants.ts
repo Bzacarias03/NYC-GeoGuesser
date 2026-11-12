@@ -8,6 +8,8 @@ export const GAME_CONFIG = {
   ROUND_DURATION: 30,
   /** Countdown duration before each round in seconds */
   COUNTDOWN_DURATION: 5,
+  /** How long the end-of-round map reveal is shown, in seconds */
+  REVEAL_DURATION: 5,
   /** Maximum points per round */
   POINTS_MAX: 5000,
   /** Minimum points per round */
@@ -16,8 +18,8 @@ export const GAME_CONFIG = {
   MAX_PLAYERS_PER_LOBBY: 4,
   /** Minimum players required to start game */
   MIN_PLAYERS_TO_START: 2,
-  /** Maximum distance for scoring calculation (50km) */
-  MAX_DISTANCE_METERS: 50000,
+  /** Distance at which a guess scores 0 points (20km, as in BenMusch/transit-guessr) */
+  ZERO_POINT_DISTANCE_METERS: 20000,
 } as const;
 
 /**
@@ -30,6 +32,8 @@ export const LOBBY_CONFIG = {
   EXPIRATION_TIME_MS: 60 * 60 * 1000,
   /** Lobby cleanup interval in milliseconds (5 minutes) */
   CLEANUP_INTERVAL_MS: 5 * 60 * 1000,
+  /** How long a disconnected player keeps their seat before being removed */
+  RECONNECT_GRACE_MS: 60 * 1000,
 } as const;
 
 /**

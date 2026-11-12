@@ -16,8 +16,8 @@ export const MAP_CONFIG = {
     latitude: 40.64817,
     zoom: 11,
   },
-  MAX_ZOOM: 12.5,
-  MIN_ZOOM: 9,
+  MAX_ZOOM: 13.5,
+  MIN_ZOOM: 10, // Also the end-of-round reveal zoom
   NYC_BOUNDS: {
     north: 40.9476,
     south: 40.5074,
@@ -27,12 +27,11 @@ export const MAP_CONFIG = {
 } as const;
 
 // Scoring Configuration
-export const SCORING_CONFIG = {
-  // Distance in meters for scoring calculation
-  PERFECT_DISTANCE: 100, // meters - full points
-  ZERO_POINTS_DISTANCE: 5000, // meters - zero points
-  DISTANCE_MULTIPLIER: 0.8, // scoring curve multiplier
-} as const;
+// Card used by the home, join and lobby pages (tighter padding on phones)
+export const PAGE_CARD_CLASS = 'bg-[#242424] border border-white rounded-lg p-5 sm:p-8 w-full max-w-lg mx-auto';
+
+// Shared text style for labels drawn on the map (guess pins, edge markers, station)
+export const MAP_LABEL_CLASS = 'px-2 py-1 rounded text-white text-xs font-bold leading-tight whitespace-nowrap shadow';
 
 // UI Configuration
 export const UI_CONFIG = {
@@ -47,7 +46,7 @@ export const UI_CONFIG = {
 // API Configuration
 export const API_CONFIG = {
   // Socket.io server URL
-  SOCKET_URL: import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080',
+  SOCKET_URL: import.meta.env.VITE_SOCKET_URL || window.location.origin,
   // MapTiler API key for map rendering
   MAPTILER_API_KEY: import.meta.env.VITE_MAPTILER_API_KEY,
 } as const;
@@ -121,4 +120,5 @@ export const STORAGE_KEYS = {
   PLAYER_ID: 'nyc-guesser-player-id',
   GAME_SETTINGS: 'nyc-guesser-settings',
   RECENT_LOBBIES: 'nyc-guesser-recent-lobbies',
+  SESSION: 'nyc-guesser-session',
 } as const; 

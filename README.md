@@ -102,6 +102,21 @@ A multiplayer location guessing game where players compete to identify NYC MTA t
 6. **Open your browser**
    Navigate to `http://localhost:5173` to start playing!
 
+### End-to-end tests (Playwright)
+
+From `client/` — Playwright starts the Express server + Vite automatically, or reuses them if already running:
+
+```bash
+cd client
+npx playwright install chromium   # first time only
+npm run test:e2e                  # headless
+npm run test:e2e:ui               # interactive UI mode
+npm run test:e2e:headed           # headed browser
+npm run test:e2e:report           # open last HTML report
+```
+
+Specs live in `client/e2e/` (home smoke + two-browser lobby join/start flows).
+
 ## Game Configuration
 
 - **Rounds**: 5 rounds per game
@@ -118,6 +133,8 @@ A multiplayer location guessing game where players compete to identify NYC MTA t
 ```
 NYC-GeoGuesser/
 ├── client/                    # Frontend application
+│   ├── e2e/                   # Playwright end-to-end tests
+│   ├── playwright.config.ts
 │   ├── src/
 │   │   ├── components/        # React UI components
 │   │   │   ├── ui/           # Reusable UI components

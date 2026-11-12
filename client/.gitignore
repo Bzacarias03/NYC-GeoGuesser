@@ -32,3 +32,9 @@ dist-ssr
 .history/
 database/
 nyc_mta_game_development_guide.md
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

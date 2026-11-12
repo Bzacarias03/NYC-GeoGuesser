@@ -1,5 +1,5 @@
 import { socketService } from './socketService';
-import type { ServerLobby, ServerPlayer } from '../types/socket-events';
+import type { LobbyJoinedEvent, ServerLobby, ServerPlayer } from '../types/socket-events';
 import { SERVER_EVENTS } from '../types/socket-events';
 
 /**
@@ -9,19 +9,20 @@ import { SERVER_EVENTS } from '../types/socket-events';
  */
 export const createLobby = async (
   hostName: string,
-): Promise<{ lobby: ServerLobby; player: ServerPlayer; lobbyCode: string }> => {
+): Promise<{ lobby: ServerLobby; player: ServerPlayer; lobbyCode: string; sessionToken: string }> => {
   return new Promise((resolve, reject) => {
     let timeoutId: NodeJS.Timeout | null = null;
     let connectUnsubscribe: (() => void) | null = null;
 
     // Set up one-time listener for lobbyJoined event
-    const unsubscribe = socketService.on(SERVER_EVENTS.LOBBY_JOINED, (data: { lobby: ServerLobby; player: ServerPlayer }) => {
+    const unsubscribe = socketService.on(SERVER_EVENTS.LOBBY_JOINED, (data: LobbyJoinedEvent) => {
       cleanup();
       
       resolve({
         lobby: data.lobby,
         player: data.player,
         lobbyCode: data.lobby.code,
+        sessionToken: data.sessionToken,
       });
     });
 
@@ -75,21 +76,21 @@ export const createLobby = async (
  * Join an existing lobby using Socket.io
  * @param lobbyCode - 6-character lobby code
  * @param playerName - Name of the joining player
- * @returns Promise resolving to the server player object
+ * @returns Promise resolving to the joined lobby, server player and session token
  */
 export const joinLobby = async (
   lobbyCode: string,
   playerName: string
-): Promise<ServerPlayer> => {
+): Promise<LobbyJoinedEvent> => {
   return new Promise((resolve, reject) => {
     let timeoutId: NodeJS.Timeout | null = null;
     let connectUnsubscribe: (() => void) | null = null;
 
     // Set up one-time listener for lobbyJoined event
-    const unsubscribe = socketService.on(SERVER_EVENTS.LOBBY_JOINED, (data: { lobby: ServerLobby; player: ServerPlayer }) => {
+    const unsubscribe = socketService.on(SERVER_EVENTS.LOBBY_JOINED, (data: LobbyJoinedEvent) => {
       cleanup();
       
-      resolve(data.player);
+      resolve(data);
     });
 
     // Set up error handler
@@ -135,6 +136,39 @@ export const joinLobby = async (
       cleanup();
       reject(new Error('Failed to join lobby'));
     }, 10000);
+  });
+};
+
+/**
+ * Reclaim a seat after a refresh or dropped connection
+ * Caller must ensure the socket is connected
+ * @param sessionToken - Token from the original lobbyJoined event
+ * @returns Promise resolving to the rejoined lobby and player
+ */
+export const rejoinLobby = async (sessionToken: string): Promise<LobbyJoinedEvent> => {
+  return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      unsubscribe();
+      errorUnsubscribe();
+      clearTimeout(timeoutId);
+    };
+
+    const unsubscribe = socketService.on(SERVER_EVENTS.LOBBY_JOINED, (data: LobbyJoinedEvent) => {
+      cleanup();
+      resolve(data);
+    });
+
+    const errorUnsubscribe = socketService.on(SERVER_EVENTS.ERROR, (error: { message: string; code?: string }) => {
+      cleanup();
+      reject(new Error(error.message));
+    });
+
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error('Rejoining lobby timed out'));
+    }, 10000);
+
+    socketService.rejoinLobby(sessionToken);
   });
 };
 

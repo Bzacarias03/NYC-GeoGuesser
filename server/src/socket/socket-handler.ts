@@ -3,7 +3,9 @@ import type { LobbyManager, GameManager, PlayerManager } from '../managers';
 import type { StationWithTrains } from '../types/station';
 import { setupLobbyHandlers } from './handlers/lobby-handlers';
 import { setupGameHandlers } from './handlers/game-handlers';
-import { setupTimerHandlers } from './handlers/timer-handlers';
+import { setupTimerHandlers, clearTimer } from './handlers/timer-handlers';
+import { SERVER_EVENTS } from '../types/events';
+import { toPublicLobby } from '../utils/public-views';
 
 /**
  * Socket handler setup
@@ -24,7 +26,11 @@ export function setupSocketHandler(
 
     // Handle disconnection
     socket.on('disconnect', (reason: string) => {
-      handleDisconnection(socket, lobbyManager, gameManager);
+      try {
+        handleDisconnection(socket, io, lobbyManager, gameManager);
+      } catch (error) {
+        console.error(`[socket] Failed to handle disconnect for ${socket.id}`, error);
+      }
     });
 
     // Handle connection errors
@@ -36,49 +42,28 @@ export function setupSocketHandler(
 
 /**
  * Handle client disconnection
- * - Remove player from lobby
- * - Migrate host if needed
- * - Clean up game state if necessary
+ * - Keep the player's seat for a grace period so they can rejoin
+ * - Remove them (migrating host if needed) if they don't come back
+ * - Clean up game state if the lobby is dissolved
  */
 function handleDisconnection(
   socket: Socket,
+  io: Server,
   lobbyManager: LobbyManager,
   gameManager: GameManager
 ): void {
-  const lobbyId = lobbyManager.getLobbyIdForSocket(socket.id);
-  
-  if (!lobbyId) {
-    // Socket wasn't in a lobby, nothing to clean up
-    return;
-  }
-
-  const lobby = lobbyManager.getLobby(lobbyId);
-  if (!lobby) {
-    return;
-  }
-
-  // Mark player as disconnected
-  lobbyManager.markPlayerDisconnected(socket.id);
-
-  // Leave the socket.io room
-  socket.leave(lobbyId);
-
-  // If game is active, remove player but continue game
-  if (lobby.gameState !== 'waiting' && lobby.gameState !== 'finished') {
-    // Player left during active game - remove them but continue
-    const updatedLobby = lobbyManager.leaveLobby(socket.id);
-    
+  const lobby = lobbyManager.markPlayerDisconnected(socket.id, (lobbyId, updatedLobby) => {
     if (updatedLobby) {
-      // Broadcast lobby update to remaining players
-      socket.to(lobbyId).emit('lobbyUpdate', { lobby: updatedLobby });
+      io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(updatedLobby) });
+    } else {
+      // Last player gave up their seat - stop the game loop for this lobby
+      clearTimer(lobbyId);
+      gameManager.cleanupGame(lobbyId);
     }
-  } else {
-    // Game not active - normal leave
-    const updatedLobby = lobbyManager.leaveLobby(socket.id);
-    
-    if (updatedLobby) {
-      // Broadcast lobby update to remaining players
-      socket.to(lobbyId).emit('lobbyUpdate', { lobby: updatedLobby });
-    }
+  });
+
+  if (lobby) {
+    // Let remaining players see who dropped
+    socket.to(lobby.id).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(lobby) });
   }
 }

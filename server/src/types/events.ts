@@ -1,6 +1,5 @@
-import type { Lobby } from './lobby';
+import type { PublicLobby, PublicStation } from '../utils/public-views';
 import type { Player } from './player';
-import type { Station, StationWithTrains } from './station';
 import type { RoundResults } from './game';
 
 /**
@@ -29,27 +28,35 @@ export interface LeaveLobbyEvent {
   // No payload
 }
 
+export interface RejoinLobbyEvent {
+  sessionToken: string;
+}
+
 /**
  * Server to Client Events
  */
 
 export interface LobbyJoinedEvent {
-  lobby: Lobby;
+  lobby: PublicLobby;
   player: Player;
+  /** Secret for reclaiming this seat after a refresh or dropped connection */
+  sessionToken: string;
 }
 
 export interface LobbyUpdateEvent {
-  lobby: Lobby;
+  lobby: PublicLobby;
 }
 
 export interface CountdownStartEvent {
-  station: StationWithTrains;
+  station: PublicStation;
   countdown: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundStartEvent {
-  station: StationWithTrains;
+  station: PublicStation;
   timer: number; // seconds remaining
+  round: number;
 }
 
 export interface RoundEndEvent {
@@ -75,6 +82,8 @@ export const CLIENT_EVENTS = {
   START_GAME: 'startGame',
   MAKE_GUESS: 'makeGuess',
   LEAVE_LOBBY: 'leaveLobby',
+  REJOIN_LOBBY: 'rejoinLobby',
+  REQUEST_GAME_STATE: 'requestGameState',
 } as const;
 
 export const SERVER_EVENTS = {

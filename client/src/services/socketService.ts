@@ -5,6 +5,7 @@ import type {
   StartGameEvent,
   MakeGuessEvent,
   LeaveLobbyEvent,
+  RejoinLobbyEvent,
   LobbyJoinedEvent,
   LobbyUpdateEvent,
   CountdownStartEvent,
@@ -31,7 +32,9 @@ class SocketService {
    * Get Socket.io server URL from environment or default to localhost
    */
   private getSocketUrl(): string {
-    const url = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080';
+    // Unset in dev: connect to the page's own origin and let the Vite proxy
+    // forward /socket.io to the server (works through tunnels like ngrok)
+    const url = import.meta.env.VITE_SOCKET_URL || window.location.origin;
     return url;
   }
 
@@ -273,6 +276,20 @@ class SocketService {
    */
   leaveLobby(): void {
     this.emit(CLIENT_EVENTS.LEAVE_LOBBY, {} as LeaveLobbyEvent);
+  }
+
+  /**
+   * Reclaim a seat after a refresh or dropped connection
+   */
+  rejoinLobby(sessionToken: string): void {
+    this.emit(CLIENT_EVENTS.REJOIN_LOBBY, { sessionToken } as RejoinLobbyEvent);
+  }
+
+  /**
+   * Ask the server to resend the running countdown/round
+   */
+  requestGameState(): void {
+    this.emit(CLIENT_EVENTS.REQUEST_GAME_STATE);
   }
 }
 
