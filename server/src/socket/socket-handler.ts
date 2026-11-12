@@ -26,7 +26,11 @@ export function setupSocketHandler(
 
     // Handle disconnection
     socket.on('disconnect', (reason: string) => {
-      handleDisconnection(socket, io, lobbyManager, gameManager);
+      try {
+        handleDisconnection(socket, io, lobbyManager, gameManager);
+      } catch (error) {
+        console.error(`[socket] Failed to handle disconnect for ${socket.id}`, error);
+      }
     });
 
     // Handle connection errors

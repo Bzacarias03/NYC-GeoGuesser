@@ -102,16 +102,21 @@ async function main() {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
 
-    // Handle uncaught errors
+    // Errors in a single game's timers are contained per lobby (see timer-handlers).
+    // Anything that still reaches here is logged so it shows up in the host's logs.
     process.on('uncaughtException', (error) => {
+      // Node can't guarantee a sane state after this, so exit and let the host restart us
+      console.error('[server] Uncaught exception, shutting down', error);
       shutdown();
     });
 
-    process.on('unhandledRejection', (reason, promise) => {
-      shutdown();
+    process.on('unhandledRejection', (reason) => {
+      // A failed promise doesn't corrupt the process; log it and keep serving games
+      console.error('[server] Unhandled promise rejection', reason);
     });
 
   } catch (error) {
+    console.error('[server] Failed to start', error);
     process.exit(1);
   }
 }

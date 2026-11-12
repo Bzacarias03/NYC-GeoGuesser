@@ -29,7 +29,7 @@ test.describe('Home page smoke', () => {
     await expect(page.getByRole('heading', { name: 'Game Lobby' })).toBeVisible();
     await expect(page.getByText('HostPlayer')).toBeVisible();
     await expect(page.getByText('Host', { exact: true })).toBeVisible();
-    await expect(page.getByText('1/4 Players')).toBeVisible();
+    await expect(page.getByTestId('player-count')).toHaveText('1/4');
     await expect(page.getByText('Need at least 2 players to start')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Start Game' })).toBeDisabled();
   });

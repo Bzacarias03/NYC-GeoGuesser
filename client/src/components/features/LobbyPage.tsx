@@ -186,7 +186,11 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
       {/* Lobby Header */}
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <h2 className="text-white text-xl sm:text-2xl font-bold">Game Lobby</h2>
-        <span className="flex items-center gap-1 text-white/70 text-sm">
+        <span
+          data-testid="player-count"
+          aria-label={`${lobby.players.length} of ${lobby.maxPlayers} players`}
+          className="flex items-center gap-1 text-white/70 text-sm"
+        >
           <Person sx={{ fontSize: 18 }} />
           {lobby.players.length}/{lobby.maxPlayers}
           {lobby.isPrivate && <Lock sx={{ fontSize: 16 }} />}

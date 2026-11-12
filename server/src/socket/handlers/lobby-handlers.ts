@@ -191,10 +191,14 @@ export function setupLobbyHandlers(
    * Client emits: requestGameState()
    */
   socket.on(CLIENT_EVENTS.REQUEST_GAME_STATE, () => {
-    const lobbyId = lobbyManager.getLobbyIdForSocket(socket.id);
-    const lobby = lobbyId ? lobbyManager.getLobby(lobbyId) : null;
-    if (lobby) {
-      emitCurrentGameState(socket, lobby);
+    try {
+      const lobbyId = lobbyManager.getLobbyIdForSocket(socket.id);
+      const lobby = lobbyId ? lobbyManager.getLobby(lobbyId) : null;
+      if (lobby) {
+        emitCurrentGameState(socket, lobby);
+      }
+    } catch (error) {
+      console.error(`[socket] Failed to send game state to ${socket.id}`, error);
     }
   });
 }

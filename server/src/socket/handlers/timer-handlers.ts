@@ -8,9 +8,72 @@ import { parseStationTrains } from '../../utils/station-filter';
 import { toPublicLobby, toPublicStation } from '../../utils/public-views';
 
 /**
- * Timer intervals for each lobby
+ * The running timer for each lobby: the countdown or round interval, or the
+ * pause between rounds. A lobby only ever has one at a time.
  */
 const timerIntervals = new Map<string, NodeJS.Timeout>();
+
+/**
+ * Run one step of a lobby's game loop. Timer callbacks run outside any
+ * try/catch, so an error here would otherwise crash the whole server and end
+ * every lobby's game. Instead, only this lobby's game is ended.
+ */
+function runGuarded(
+  io: Server,
+  lobbyId: string,
+  lobbyManager: LobbyManager,
+  gameManager: GameManager,
+  step: string,
+  fn: () => void
+): void {
+  try {
+    fn();
+  } catch (error) {
+    console.error(`[game] ${step} failed for lobby ${lobbyId}; ending its game`, error);
+    abortGame(io, lobbyId, lobbyManager, gameManager);
+  }
+}
+
+/**
+ * End a lobby's game after an error: stop its timers, return the lobby to
+ * 'waiting' so the host can start again, and tell its players.
+ */
+function abortGame(
+  io: Server,
+  lobbyId: string,
+  lobbyManager: LobbyManager,
+  gameManager: GameManager
+): void {
+  try {
+    clearTimer(lobbyId);
+    gameManager.cleanupGame(lobbyId);
+
+    const lobby = lobbyManager.getLobby(lobbyId);
+    if (!lobby) {
+      return;
+    }
+
+    lobby.players.forEach(player => {
+      player.currentRoundGuess = null;
+      player.currentRoundScore = 0;
+    });
+    lobbyManager.updateLobby(lobbyId, {
+      gameState: 'waiting',
+      currentRound: 0,
+      currentStation: null,
+      roundTimer: 0,
+      roundStartTime: null,
+    });
+
+    io.to(lobbyId).emit(SERVER_EVENTS.ERROR, {
+      message: 'Something went wrong, so the game was ended.',
+      code: 'GAME_ABORTED',
+    });
+    io.to(lobbyId).emit(SERVER_EVENTS.LOBBY_UPDATE, { lobby: toPublicLobby(lobby) });
+  } catch (error) {
+    console.error(`[game] Failed to clean up lobby ${lobbyId} after an error`, error);
+  }
+}
 
 /**
  * Setup timer event handlers
@@ -62,7 +125,7 @@ export function startCountdownTimer(
   });
 
   // Start countdown interval
-  const interval = setInterval(() => {
+  const interval = setInterval(() => runGuarded(io, lobbyId, lobbyManager, gameManager, 'countdown', () => {
     countdown--;
 
     if (countdown > 0) {
@@ -77,7 +140,7 @@ export function startCountdownTimer(
       clearTimer(lobbyId);
       startRoundTimer(io, lobbyId, lobbyManager, gameManager, station);
     }
-  }, TIMER_CONFIG.UPDATE_INTERVAL_MS);
+  }), TIMER_CONFIG.UPDATE_INTERVAL_MS);
 
   timerIntervals.set(lobbyId, interval);
 }
@@ -115,7 +178,7 @@ export function startRoundTimer(
   let timeRemaining = GAME_CONFIG.ROUND_DURATION;
 
   // Start round timer interval
-  const interval = setInterval(() => {
+  const interval = setInterval(() => runGuarded(io, lobbyId, lobbyManager, gameManager, 'round end', () => {
     timeRemaining--;
 
     if (timeRemaining > 0) {
@@ -126,7 +189,7 @@ export function startRoundTimer(
       clearTimer(lobbyId);
       endRound(io, lobbyId, lobbyManager, gameManager);
     }
-  }, TIMER_CONFIG.UPDATE_INTERVAL_MS);
+  }), TIMER_CONFIG.UPDATE_INTERVAL_MS);
 
   timerIntervals.set(lobbyId, interval);
 }
@@ -168,8 +231,10 @@ function endRound(
     });
   }
 
-  // Wait a bit before starting next round or ending game
-  setTimeout(() => {
+  // Wait a bit before starting next round or ending game. Tracked like the
+  // other timers so it's cancelled if the lobby ends during the pause.
+  const pause = setTimeout(() => runGuarded(io, lobbyId, lobbyManager, gameManager, 'next round', () => {
+    timerIntervals.delete(lobbyId);
     const currentLobby = lobbyManager.getLobby(lobbyId);
     if (!currentLobby) {
       return;
@@ -202,7 +267,9 @@ function endRound(
         startCountdownTimer(io, lobbyId, lobbyManager, gameManager, stationWithTrains);
       }
     }
-  }, GAME_CONFIG.REVEAL_DURATION * 1000); // Players look over the revealed map
+  }), GAME_CONFIG.REVEAL_DURATION * 1000); // Players look over the revealed map
+
+  timerIntervals.set(lobbyId, pause);
 }
 
 /**
@@ -229,9 +296,10 @@ export function emitCurrentGameState(socket: Socket, lobby: Lobby): void {
  * Clear timer for a lobby
  */
 export function clearTimer(lobbyId: string): void {
-  const interval = timerIntervals.get(lobbyId);
-  if (interval) {
-    clearInterval(interval);
+  const timer = timerIntervals.get(lobbyId);
+  if (timer) {
+    // clearTimeout cancels both intervals and timeouts in Node
+    clearTimeout(timer);
     timerIntervals.delete(lobbyId);
   }
 }
@@ -240,8 +308,8 @@ export function clearTimer(lobbyId: string): void {
  * Clean up all timers (for server shutdown)
  */
 export function clearAllTimers(): void {
-  timerIntervals.forEach((interval) => {
-    clearInterval(interval);
+  timerIntervals.forEach((timer) => {
+    clearTimeout(timer);
   });
   timerIntervals.clear();
 }

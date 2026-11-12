@@ -17,12 +17,12 @@ test.describe('Multiplayer lobby', () => {
 
       await joinLobbyFromHome(joinerPage, 'GuestBob', lobbyCode);
 
-      await expect(hostPage.getByText('2/4 Players')).toBeVisible();
+      await expect(hostPage.getByTestId('player-count')).toHaveText('2/4');
       await expect(hostPage.getByText('GuestBob')).toBeVisible();
-      await expect(hostPage.getByText('Ready to start! Click "Start Game" to begin.')).toBeVisible();
+      await expect(hostPage.getByText('Ready to start!')).toBeVisible();
       await expect(hostPage.getByRole('button', { name: 'Start Game' })).toBeEnabled();
 
-      await expect(joinerPage.getByText('2/4 Players')).toBeVisible();
+      await expect(joinerPage.getByTestId('player-count')).toHaveText('2/4');
       await expect(joinerPage.getByText('HostAlice')).toBeVisible();
       await expect(joinerPage.getByText('Waiting for host to start the game...')).toBeVisible();
       await expect(joinerPage.getByRole('button', { name: 'Start Game' })).toHaveCount(0);

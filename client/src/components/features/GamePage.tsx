@@ -14,9 +14,14 @@ import staticMap from '../../assets/static_map.webp';
 import { GameSidebar } from '../ui/GameSidebar';
 import { OffscreenGuessIndicator } from '../ui/OffscreenGuessIndicator';
 import { MobileGameCard } from '../ui/MobileGameCard';
+import { toast } from 'react-toastify';
+import { socketService } from '../../services/socketService';
+import { SERVER_EVENTS, type ErrorEvent } from '../../types/socket-events';
 
 /** Render at most 2x density: 3x phone screens cost ~2x the GPU work for no visible gain */
 const MAP_PIXEL_RATIO = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2);
+
+const LOST_SERVER_MESSAGE = 'Lost connection to the game server. The game has ended.';
 
 /** Width of the area (meters) framed around the station when a round ends */
 const REVEAL_VIEW_METERS = 5000;
@@ -131,7 +136,7 @@ const StationMarker: React.FC<{ stationName: string }> = ({ stationName }) => (
 const GamePage: React.FC = () => {
   const { gameSessionId } = useParams<{ gameSessionId: string }>();
   const navigate = useNavigate();
-  const { currentPlayerId, currentLobby } = useLobbyStore();
+  const { currentPlayerId, currentLobby, isRejoining } = useLobbyStore();
   
   // Use lobbyId from params (which is actually the lobby ID now, not gameSessionId)
   const lobbyId = gameSessionId || currentLobby?.id || null;
@@ -154,6 +159,28 @@ const GamePage: React.FC = () => {
     isGameComplete,
     isShowingResults
   } = useGameLogic(lobbyId, currentPlayerId || null);
+
+  // Our seat is gone: the server restarted (lobbies live in memory) or the rejoin
+  // failed. This game can't continue, so leave instead of showing a frozen round.
+  useEffect(() => {
+    if (!currentLobby && !isRejoining) {
+      toast.error(LOST_SERVER_MESSAGE);
+      navigate('/', { replace: true });
+    }
+  }, [currentLobby, isRejoining, navigate]);
+
+  // The server ended this lobby's game after an error, or we gave up reconnecting
+  useEffect(() => {
+    return socketService.on<ErrorEvent>(SERVER_EVENTS.ERROR, (error) => {
+      if (error.code === 'GAME_ABORTED') {
+        toast.error(error.message);
+        navigate('/lobby', { replace: true });
+      } else if (error.code === 'RECONNECTION_FAILED') {
+        toast.error(LOST_SERVER_MESSAGE);
+        navigate('/', { replace: true });
+      }
+    });
+  }, [navigate]);
 
   // A phone keyboard left open from the lobby can leave the page scrolled after it
   // closes, pushing the card under the browser UI. Close it and keep the page at the top.
