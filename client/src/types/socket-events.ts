@@ -67,6 +67,8 @@ export interface ServerLobby {
   gameState: 'waiting' | 'countdown' | 'active' | 'results' | 'finished';
   currentRound: number;
   currentStation: StationWithTrains | PublicStation | null;
+  /** Id of the current (or last) game; shared by every player's analytics events */
+  gameId: string | null;
   roundTimer: number;
   roundStartTime: number | null;
   gameResults: {
@@ -146,21 +148,25 @@ export interface CountdownStartEvent {
   station: PublicStation;
   countdown: number; // seconds remaining
   round: number;
+  gameId: string;
 }
 
 export interface RoundStartEvent {
   station: PublicStation;
   timer: number; // seconds remaining
   round: number;
+  gameId: string;
 }
 
 export interface RoundEndEvent {
   results: RoundResults;
+  gameId: string;
 }
 
 export interface GameEndEvent {
   finalScores: Array<{ playerId: string; playerName: string; totalScore: number }>;
   winner: { playerId: string; playerName: string; totalScore: number };
+  gameId: string;
 }
 
 export interface ErrorEvent {

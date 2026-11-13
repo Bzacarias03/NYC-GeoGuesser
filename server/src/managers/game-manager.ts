@@ -42,6 +42,7 @@ export class GameManager {
     // Initialize game state (lobbies are reused for rematches)
     lobby.currentRound = 0;
     lobby.gameResults = null;
+    lobby.gameId = randomUUID();
     this.activeGames.set(lobby.id, 'countdown');
     this.usedStations.set(lobby.id, new Set());
     this.playerGuesses.set(lobby.id, new Map());

@@ -6,6 +6,7 @@ import { PageShell } from '../layout/PageShell';
 import { Lock, ContentCopy, ArrowBack, Person } from '@mui/icons-material';
 import { Slide, toast } from 'react-toastify';
 import { syncLobbyState, realtimeManager, syncGameSession } from '../../services/realtimeService';
+import { track } from '../../services/analytics';
 
 // Fallback color for a player without a server-assigned one
 const getPlayerColor = (playerId: string): string => {
@@ -131,6 +132,7 @@ const LobbyView: React.FC<{ lobby: GameLobby }> = ({
   const handleCopyShareLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(lobby.shareLink);
+      track('invite_link_copied', {});
       // You could add a toast notification here
       toast.success('Share link copied to clipboard!', {
         position: "bottom-center",

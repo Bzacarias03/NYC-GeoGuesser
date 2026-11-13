@@ -57,7 +57,7 @@ export const JoinPage: React.FC = () => {
     
     try {
       // Join the lobby using the code from URL
-      await joinLobby(lobbyCode, playerName.trim());
+      await joinLobby(lobbyCode, playerName.trim(), 'invite_link');
       
       // Navigate to lobby page
       navigate('/lobby');

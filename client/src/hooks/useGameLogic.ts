@@ -21,6 +21,7 @@ import type {
 import { GAME_CONFIG } from '../constants';
 import { socketService } from '../services/socketService';
 import { useLobbyStore } from '../stores/lobbyStore';
+import { track, markGameCompleted, setActiveGameId } from '../services/analytics';
 
 
 interface GameLogicState {
@@ -65,6 +66,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
 
   // Handle countdown start
   const handleCountdownStart = useCallback((data: CountdownStartEvent) => {
+    setActiveGameId(data.gameId);
     // Stop any existing timers
     if (timerRef.current) {
       timerRef.current.stop();
@@ -117,6 +119,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
 
   // Handle round start
   const handleRoundStart = useCallback((data: RoundStartEvent) => {
+    setActiveGameId(data.gameId);
     // Stop countdown timer if still running
     if (countdownTimerRef.current) {
       countdownTimerRef.current.stop();
@@ -169,6 +172,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
 
   // Handle round end
   const handleRoundEnd = useCallback((data: RoundEndEvent) => {
+    setActiveGameId(data.gameId);
     // Stop round timer
     if (timerRef.current) {
       timerRef.current.stop();
@@ -181,6 +185,12 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       timeRemaining: 0,
       roundResults: data.results,
     }));
+
+    track('round_completed', {
+      game_id: data.gameId,
+      round: data.results.roundNumber,
+      player_count: useLobbyStore.getState().currentLobby?.players.length ?? data.results.guesses.length,
+    });
     
     // Check if game is complete
     if (data.results.roundNumber >= GAME_CONFIG.TOTAL_ROUNDS) {
@@ -190,6 +200,10 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
 
   // Handle game end
   const handleGameEnd = useCallback((data: GameEndEvent) => {
+    track('game_completed', { game_id: data.gameId, player_count: data.finalScores.length });
+    if (lobbyId) markGameCompleted(lobbyId);
+    setActiveGameId(null);
+
     // Stop all timers
     if (timerRef.current) {
       timerRef.current.stop();
@@ -217,7 +231,7 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       returnToLobbyRef.current = null;
       navigate('/lobby');
     }, 10000);
-  }, [navigate]);
+  }, [navigate, lobbyId]);
 
 
 
@@ -306,6 +320,8 @@ export const useGameLogic = (lobbyId: string | null, currentPlayerId: string | n
       if (returnToLobbyRef.current) {
         clearTimeout(returnToLobbyRef.current);
       }
+      // Left the game screen: later events (e.g. a disconnect in the lobby) aren't part of this game
+      setActiveGameId(null);
     };
   }, []);
 
