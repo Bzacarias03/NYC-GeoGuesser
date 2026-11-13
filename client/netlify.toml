@@ -1,3 +1,18 @@
+# PostHog analytics, proxied through our own domain so ad blockers don't drop events.
+# Must come before the SPA catch-all below.
+[[redirects]]
+  from = "/ingest/static/*"
+  to = "https://us-assets.i.posthog.com/static/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ingest/*"
+  to = "https://us.i.posthog.com/:splat"
+  status = 200
+  force = true
+
+# SPA: serve the app for every other route
 [[redirects]]
   from = "/*"
   to = "/"

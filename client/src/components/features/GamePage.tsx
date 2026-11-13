@@ -17,6 +17,7 @@ import { MobileGameCard } from '../ui/MobileGameCard';
 import { toast } from 'react-toastify';
 import { socketService } from '../../services/socketService';
 import { SERVER_EVENTS, type ErrorEvent } from '../../types/socket-events';
+import { track, getActiveGameId } from '../../services/analytics';
 
 /** Render at most 2x density: 3x phone screens cost ~2x the GPU work for no visible gain */
 const MAP_PIXEL_RATIO = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2);
@@ -164,6 +165,7 @@ const GamePage: React.FC = () => {
   // failed. This game can't continue, so leave instead of showing a frozen round.
   useEffect(() => {
     if (!currentLobby && !isRejoining) {
+      track('game_ended_unexpectedly', { game_id: getActiveGameId(), reason: 'server_lost' });
       toast.error(LOST_SERVER_MESSAGE);
       navigate('/', { replace: true });
     }
@@ -173,9 +175,11 @@ const GamePage: React.FC = () => {
   useEffect(() => {
     return socketService.on<ErrorEvent>(SERVER_EVENTS.ERROR, (error) => {
       if (error.code === 'GAME_ABORTED') {
+        track('game_ended_unexpectedly', { game_id: getActiveGameId(), reason: 'aborted' });
         toast.error(error.message);
         navigate('/lobby', { replace: true });
       } else if (error.code === 'RECONNECTION_FAILED') {
+        track('game_ended_unexpectedly', { game_id: getActiveGameId(), reason: 'reconnect_failed' });
         toast.error(LOST_SERVER_MESSAGE);
         navigate('/', { replace: true });
       }
@@ -266,9 +270,10 @@ const GamePage: React.FC = () => {
 
   // Handle confirmation to leave game
   const handleConfirmLeave = useCallback(() => {
+    track('game_left_early', { game_id: getActiveGameId(), round: currentRoundNumber });
     setShowLeaveConfirmation(false);
     navigate('/');
-  }, [navigate]);
+  }, [navigate, currentRoundNumber]);
 
   // Handle cancel leaving game
   const handleCancelLeave = useCallback(() => {

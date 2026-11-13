@@ -1,20 +1,20 @@
 import { socketService } from './socketService';
-import { SERVER_EVENTS } from '../types/socket-events';
+import { SERVER_EVENTS, type CountdownStartEvent } from '../types/socket-events';
 
 /**
  * Start the game (host only)
  * Server will handle countdown, rounds, and game flow
- * @returns Promise that resolves when game starts (countdown begins)
+ * @returns Promise that resolves with the new game's id when the countdown begins
  */
-export const startGame = async (): Promise<void> => {
+export const startGame = async (): Promise<string> => {
   return new Promise((resolve, reject) => {
     let timeoutId: NodeJS.Timeout | null = null;
     let connectUnsubscribe: (() => void) | null = null;
 
     // Set up one-time listener for countdownStart event
-    const unsubscribe = socketService.on(SERVER_EVENTS.COUNTDOWN_START, () => {
+    const unsubscribe = socketService.on<CountdownStartEvent>(SERVER_EVENTS.COUNTDOWN_START, (data) => {
       cleanup();
-      resolve();
+      resolve(data.gameId);
     });
 
     // Set up error handler
