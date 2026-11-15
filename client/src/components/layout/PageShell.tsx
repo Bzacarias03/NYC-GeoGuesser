@@ -1,6 +1,7 @@
 import React from 'react';
 import { LocationOn } from '@mui/icons-material';
 import staticMap from '../../assets/static_map.webp';
+import { isAnalyticsAvailable, openPrivacySettings } from '../../services/analytics';
 
 /**
  * Shared layout for the home, join and lobby pages: dimmed map background,
@@ -28,5 +29,17 @@ export const PageShell: React.FC<{ children: React.ReactNode }> = ({ children })
     <main className="relative z-10 flex-1 flex justify-center items-center px-4 sm:px-8 pb-6">
       {children}
     </main>
+
+    {/* Consent can be changed at any time */}
+    {isAnalyticsAvailable() && (
+      <footer className="relative z-10 pb-4 text-center">
+        <button
+          onClick={openPrivacySettings}
+          className="text-xs text-white/50 hover:text-white/80 underline underline-offset-2 hover:cursor-pointer"
+        >
+          Privacy settings
+        </button>
+      </footer>
+    )}
   </div>
 );

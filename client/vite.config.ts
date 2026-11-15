@@ -19,6 +19,17 @@ export default defineConfig({
         target: 'http://localhost:8080',
         ws: true,
       },
+      // PostHog analytics (same paths as the Netlify proxy in netlify.toml)
+      '/ingest/static': {
+        target: 'https://us-assets.i.posthog.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ingest/, ''),
+      },
+      '/ingest': {
+        target: 'https://us.i.posthog.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ingest/, ''),
+      },
     },
   },
 })

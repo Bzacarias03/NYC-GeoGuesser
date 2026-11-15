@@ -9,6 +9,7 @@ import { startGame as startGameService } from '../services/gameService'
 import { syncLobbyState, realtimeManager } from '../services/realtimeService'
 import { socketService } from '../services/socketService'
 import { savePlayerData, saveLobbySession, loadLobbySession, clearLobbySession } from '../utils'
+import { track, isRematch, getActiveGameId, setActiveGameId } from '../services/analytics'
 import type { ServerLobby, ServerPlayer } from '../types/socket-events'
 
 export interface Player {
@@ -50,7 +51,7 @@ interface LobbyState {
   setJoinCode: (code: string) => void
   setPlayerName: (name: string) => void
   createLobby: (playerName: string, isPrivate: boolean) => Promise<void>
-  joinLobby: (code: string, playerName: string) => Promise<void>
+  joinLobby: (code: string, playerName: string, method?: 'code' | 'invite_link') => Promise<void>
   leaveLobby: () => Promise<void>
   rejoinLobby: () => Promise<void>
   startGame: () => Promise<void>
@@ -167,6 +168,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => {
         const { lobby: serverLobby, player: serverPlayer, sessionToken } = await createLobby(playerName)
         enterLobby(serverLobby, serverPlayer, sessionToken)
         set({ isCreating: false, playerName: '' })
+        track('lobby_created', {})
       } catch (error) {
         set({ 
           error: error instanceof Error ? error.message : 'Failed to create lobby',
@@ -175,7 +177,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => {
       }
     },
     
-    joinLobby: async (code: string, playerName: string) => {
+    joinLobby: async (code: string, playerName: string, method: 'code' | 'invite_link' = 'code') => {
       set({ isJoining: true, error: null })
       
       try {
@@ -184,6 +186,7 @@ export const useLobbyStore = create<LobbyState>((set, get) => {
         const { lobby: serverLobby, player: serverPlayer, sessionToken } = await joinLobby(code, playerName)
         enterLobby(serverLobby, serverPlayer, sessionToken)
         set({ isJoining: false, joinCode: '', playerName: '' })
+        track('lobby_joined', { method })
       } catch (error) {
         set({ 
           error: error instanceof Error ? error.message : 'Failed to join lobby',
@@ -230,7 +233,12 @@ export const useLobbyStore = create<LobbyState>((set, get) => {
           await ensureConnected()
           const { lobby: serverLobby, player: serverPlayer } = await rejoinLobby(sessionToken)
           enterLobby(serverLobby, serverPlayer, sessionToken)
+          // Still mid-game? (after a refresh this page has no game id yet)
+          const inGame = serverLobby.gameState !== 'waiting' && serverLobby.gameState !== 'finished'
+          if (inGame) setActiveGameId(serverLobby.gameId)
+          track('rejoined_after_disconnect', { game_id: inGame ? serverLobby.gameId : null, success: true })
         } catch (error) {
+          track('rejoined_after_disconnect', { game_id: getActiveGameId(), success: false })
           // Seat is gone (grace period expired or server restarted)
           clearLobbySession()
           set({
@@ -260,8 +268,9 @@ export const useLobbyStore = create<LobbyState>((set, get) => {
       }
       
       try {
-        await startGameService()
+        const gameId = await startGameService()
         // Game start will trigger countdownStart event, which will be handled by game components
+        track('game_started', { game_id: gameId, player_count: currentLobby.players.length, is_rematch: isRematch(currentLobby.id) })
       } catch (error) {
         set({ error: error instanceof Error ? error.message : 'Failed to start game' })
       }

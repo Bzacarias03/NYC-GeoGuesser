@@ -116,12 +116,14 @@ export function startCountdownTimer(
 
   let countdown = GAME_CONFIG.COUNTDOWN_DURATION;
   const round = lobbyManager.getLobby(lobbyId)?.currentRound ?? 0;
+  const gameId = lobbyManager.getLobby(lobbyId)?.gameId ?? '';
 
   // Emit initial countdown
   io.to(lobbyId).emit(SERVER_EVENTS.COUNTDOWN_START, {
     station: toPublicStation(station),
     countdown,
     round,
+    gameId,
   });
 
   // Start countdown interval
@@ -134,6 +136,7 @@ export function startCountdownTimer(
         station: toPublicStation(station),
         countdown,
         round,
+        gameId,
       });
     } else {
       // Countdown finished - start active round
@@ -173,6 +176,7 @@ export function startRoundTimer(
     station: toPublicStation(station),
     timer: GAME_CONFIG.ROUND_DURATION,
     round: updatedLobby.currentRound,
+    gameId: updatedLobby.gameId ?? '',
   });
 
   let timeRemaining = GAME_CONFIG.ROUND_DURATION;
@@ -222,6 +226,7 @@ function endRound(
   // Emit round end with results
   io.to(lobbyId).emit(SERVER_EVENTS.ROUND_END, {
     results: roundResults,
+    gameId: lobby.gameId ?? '',
   });
 
   // Emit lobby update with updated player scores
@@ -251,6 +256,7 @@ function endRound(
         io.to(lobbyId).emit(SERVER_EVENTS.GAME_END, {
           finalScores: updatedLobby.gameResults.finalScores,
           winner: updatedLobby.gameResults.winner,
+          gameId: updatedLobby.gameId ?? '',
         });
       }
 
@@ -286,9 +292,9 @@ export function emitCurrentGameState(socket: Socket, lobby: Lobby): void {
   const station = toPublicStation(lobby.currentStation);
 
   if (lobby.gameState === 'countdown') {
-    socket.emit(SERVER_EVENTS.COUNTDOWN_START, { station, countdown: remaining, round: lobby.currentRound });
+    socket.emit(SERVER_EVENTS.COUNTDOWN_START, { station, countdown: remaining, round: lobby.currentRound, gameId: lobby.gameId ?? '' });
   } else if (lobby.gameState === 'active') {
-    socket.emit(SERVER_EVENTS.ROUND_START, { station, timer: remaining, round: lobby.currentRound });
+    socket.emit(SERVER_EVENTS.ROUND_START, { station, timer: remaining, round: lobby.currentRound, gameId: lobby.gameId ?? '' });
   }
 }
 

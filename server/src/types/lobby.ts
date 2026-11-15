@@ -26,6 +26,8 @@ export interface Lobby {
   roundTimer: number;
   /** Timestamp for round timing */
   roundStartTime: number | null;
+  /** Random id for the current (or last) game, shared by every player's analytics events */
+  gameId: string | null;
   /** Final scores and rankings */
   gameResults: {
     finalScores: Array<{ playerId: string; playerName: string; totalScore: number }>;

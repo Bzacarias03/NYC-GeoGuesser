@@ -86,6 +86,7 @@ export class LobbyManager {
       currentStation: null,
       roundTimer: 0,
       roundStartTime: null,
+      gameId: null,
       gameResults: null,
       createdAt: Date.now(),
       lastActiveAt: Date.now(),
