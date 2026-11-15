@@ -4,7 +4,7 @@ import { socketService } from './services/socketService';
 import { useLobbyStore } from './stores/lobbyStore';
 import { loadLobbySession } from './utils';
 import { ToastContainer } from 'react-toastify';
-import { AnalyticsNotice } from './components/ui/AnalyticsNotice';
+import { ConsentBanner } from './components/ui/ConsentBanner';
 import { track, getActiveGameId } from './services/analytics';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -36,7 +36,7 @@ function App() {
   return (
     <>
       <Router />
-      <AnalyticsNotice />
+      <ConsentBanner />
       <ToastContainer
         position="bottom-center"
         autoClose={3000}
